@@ -1,0 +1,6 @@
+{
+  "name": "examples",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.13.0"
+}

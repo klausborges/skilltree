@@ -1,0 +1,15 @@
+{
+  "name": "fencecheck",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@ast-grep/cli": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "@effect/tsgo": "catalog:",
+    "@effect/vitest": "catalog:",
+    "effect": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "catalog:"
+  }
+}
