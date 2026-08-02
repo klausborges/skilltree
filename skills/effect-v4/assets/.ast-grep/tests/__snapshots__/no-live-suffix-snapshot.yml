@@ -1,0 +1,44 @@
+id: no-live-suffix
+snapshots:
+  class Database { static readonly layerLive = Layer.sync(Database, make) }:
+    labels:
+    - source: layerLive
+      style: primary
+      start: 33
+      end: 42
+  class DatabaseLive {}:
+    labels:
+    - source: DatabaseLive
+      style: primary
+      start: 6
+      end: 18
+    - source: class DatabaseLive {}
+      style: secondary
+      start: 0
+      end: 21
+  const DatabaseLive = Layer.sync(Database, make):
+    labels:
+    - source: DatabaseLive
+      style: primary
+      start: 6
+      end: 18
+    - source: DatabaseLive = Layer.sync(Database, make)
+      style: secondary
+      start: 6
+      end: 47
+  'let x: DatabaseLive':
+    labels:
+    - source: DatabaseLive
+      style: primary
+      start: 7
+      end: 19
+  'type StreamLive = { readonly id: string }':
+    labels:
+    - source: StreamLive
+      style: primary
+      start: 5
+      end: 15
+    - source: 'type StreamLive = { readonly id: string }'
+      style: secondary
+      start: 0
+      end: 41

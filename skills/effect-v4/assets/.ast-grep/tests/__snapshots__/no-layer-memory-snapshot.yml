@@ -1,0 +1,20 @@
+id: no-layer-memory
+snapshots:
+  Effect.provide(program, Store.layerMemory):
+    labels:
+    - source: layerMemory
+      style: primary
+      start: 30
+      end: 41
+  class Store { static readonly layerMemory = Layer.sync(Store, make) }:
+    labels:
+    - source: layerMemory
+      style: primary
+      start: 30
+      end: 41
+  const layerMemory = Layer.sync(Store, make):
+    labels:
+    - source: layerMemory
+      style: primary
+      start: 6
+      end: 17

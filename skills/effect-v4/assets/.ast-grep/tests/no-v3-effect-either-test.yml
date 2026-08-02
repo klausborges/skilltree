@@ -1,0 +1,7 @@
+id: no-v3-effect-either
+valid:
+  - 'const r = yield* Effect.result(program)'
+  - 'const e = Result.isFailure(r)'
+invalid:
+  - 'const r = yield* Effect.either(program)'
+  - 'program.pipe(Effect.either)'

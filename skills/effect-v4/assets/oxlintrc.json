@@ -1,0 +1,147 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "oxc",
+    "import",
+    "jsdoc",
+    "node",
+    "promise",
+    "vitest"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "warn",
+    "style": "off",
+    "pedantic": "off",
+    "restriction": "off"
+  },
+  "options": {
+    "denyWarnings": true,
+    "reportUnusedDisableDirectives": "error",
+    "typeAware": true,
+    "typeCheck": false
+  },
+  "env": {
+    "node": true,
+    "es2024": true
+  },
+  "rules": {
+    "eslint/curly": "error",
+    "eslint/eqeqeq": "error",
+    "eslint/no-nested-ternary": "error",
+    "eslint/object-shorthand": "error",
+    "eslint/prefer-const": "error",
+    "eslint/prefer-object-has-own": "error",
+    "eslint/prefer-template": "error",
+    "eslint/require-yield": "error",
+    "eslint/no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "@effect/platform",
+            "message": "v3 package — platform modules live in core effect; @effect/platform-node IS allowed"
+          },
+          {
+            "name": "@effect/schema",
+            "message": "v3 package — Schema from effect/Schema"
+          },
+          {
+            "name": "@effect/cli",
+            "message": "v3 package — effect/unstable/cli"
+          },
+          {
+            "name": "@effect/rpc",
+            "message": "v3 package — effect/unstable/rpc"
+          },
+          {
+            "name": "@effect/cluster",
+            "message": "v3 package — effect/unstable/cluster"
+          },
+          {
+            "name": "@effect/experimental",
+            "message": "v3 package — effect/unstable/*"
+          },
+          {
+            "name": "@effect/workflow",
+            "message": "v3 package — effect/unstable/workflow"
+          },
+          {
+            "name": "@effect/typeclass",
+            "message": "v3 package — effect/{Combiner,Reducer}"
+          },
+          {
+            "name": "@effect/sql",
+            "message": "v3 meta package — effect/unstable/sql; @effect/sql-* drivers ARE allowed"
+          },
+          {
+            "name": "fast-check",
+            "message": "FastCheck ships inside core — effect/testing"
+          }
+        ],
+        "patterns": [
+          {
+            "group": [
+              "@effect/platform/*",
+              "@effect/schema/*",
+              "@effect/cli/*",
+              "@effect/rpc/*",
+              "@effect/cluster/*",
+              "@effect/experimental/*",
+              "@effect/workflow/*",
+              "@effect/typeclass/*",
+              "@effect/sql/*"
+            ],
+            "message": "v3 package"
+          }
+        ]
+      }
+    ],
+    "oxc/no-barrel-file": "error",
+    "import/consistent-type-specifier-style": "error",
+    "import/first": "error",
+    "import/no-duplicates": "error",
+    "import/no-empty-named-blocks": "error",
+    "import/no-self-import": "error",
+    "typescript/consistent-type-imports": ["error", { "fixStyle": "separate-type-imports" }],
+    "typescript/consistent-type-exports": [
+      "error",
+      { "fixMixedExportsWithInlineTypeSpecifier": false }
+    ],
+    "typescript/dot-notation": "off",
+    "typescript/no-confusing-void-expression": "error",
+    "typescript/no-deprecated": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-import-type-side-effects": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/no-unnecessary-condition": "error",
+    "typescript/no-unnecessary-qualifier": "error",
+    "typescript/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+    ],
+    "typescript/only-throw-error": "error",
+    "typescript/prefer-nullish-coalescing": "error",
+    "typescript/prefer-optional-chain": "error",
+    "typescript/prefer-readonly": "error",
+    "typescript/prefer-readonly-parameter-types": "off",
+    "typescript/prefer-regexp-exec": "error",
+    "typescript/prefer-string-starts-ends-with": "error",
+    "typescript/require-await": "error",
+    "typescript/strict-boolean-expressions": "error",
+    "typescript/strict-void-return": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "typescript/use-unknown-in-catch-callback-variable": "error",
+    "unicorn/filename-case": ["error", { "case": "kebabCase" }],
+    "unicorn/no-abusive-eslint-disable": "error",
+    "vitest/no-focused-tests": "error",
+    "eslint/no-underscore-dangle": "off"
+  },
+  "ignorePatterns": ["**/dist/**", "**/build/**", "**/node_modules/**", "references/**"]
+}

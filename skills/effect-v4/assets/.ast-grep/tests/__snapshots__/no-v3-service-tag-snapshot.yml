@@ -1,0 +1,20 @@
+id: no-v3-service-tag
+snapshots:
+  const b = Context.GenericTag<B>("B"):
+    labels:
+    - source: Context.GenericTag
+      style: primary
+      start: 10
+      end: 28
+  export class A extends Context.Tag("A")<A, {}>() {}:
+    labels:
+    - source: Context.Tag
+      style: primary
+      start: 23
+      end: 34
+  export class C extends Effect.Tag("C")<C, {}>() {}:
+    labels:
+    - source: Effect.Tag
+      style: primary
+      start: 23
+      end: 33

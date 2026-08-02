@@ -1,0 +1,26 @@
+id: no-manual-runtime-in-tests
+snapshots:
+  Effect.runFork(program):
+    labels:
+    - source: Effect.runFork
+      style: primary
+      start: 0
+      end: 14
+  const rt = ManagedRuntime.make(appLayer):
+    labels:
+    - source: ManagedRuntime.make
+      style: primary
+      start: 11
+      end: 30
+  const x = Effect.runSync(program):
+    labels:
+    - source: Effect.runSync
+      style: primary
+      start: 10
+      end: 24
+  it("works", async () => { await Effect.runPromise(program) }):
+    labels:
+    - source: Effect.runPromise
+      style: primary
+      start: 32
+      end: 49

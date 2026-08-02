@@ -1,0 +1,14 @@
+id: no-live-suffix
+valid:
+  - 'class Database { static readonly layer = Layer.sync(Database, make) }'
+  - 'const layerTest = Layer.mergeAll(a, b)'
+  - 'it.live("uses wall clock", () => program)'
+  - 'const liveness = check()'
+  - 'const isLive = true'
+  - 'const opts = { isLive: true }'
+  - 'function ping(s: StreamLive) { return s }'
+invalid:
+  - 'class DatabaseLive {}'
+  - 'class Database { static readonly layerLive = Layer.sync(Database, make) }'
+  - 'const DatabaseLive = Layer.sync(Database, make)'
+  - 'type StreamLive = { readonly id: string }'

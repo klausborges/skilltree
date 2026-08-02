@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+id: no-v3-service-tag
+language: TypeScript
+severity: error
+message: "v3 service-tag constructor (Context.Tag / Context.GenericTag / Effect.Tag) is banned; Effect v4 defines services with Context.Service."
+note: |
+  Define services with `Context.Service` (or `Context.Reference` for a value
+  with a sensible default). See effect-v4 references/services-layers.md.
+rule:
+  any:
+    - pattern: Context.Tag
+    - pattern: Context.GenericTag
+    - pattern: Effect.Tag

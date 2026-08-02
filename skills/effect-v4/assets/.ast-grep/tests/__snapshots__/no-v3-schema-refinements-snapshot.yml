@@ -1,0 +1,26 @@
+id: no-v3-schema-refinements
+snapshots:
+  Schema.Number.pipe(Schema.int()):
+    labels:
+    - source: Schema.int
+      style: primary
+      start: 19
+      end: 29
+  Schema.String.pipe(Schema.maxLength(64)):
+    labels:
+    - source: Schema.maxLength
+      style: primary
+      start: 19
+      end: 35
+  Schema.String.pipe(Schema.minLength(1)):
+    labels:
+    - source: Schema.minLength
+      style: primary
+      start: 19
+      end: 35
+  Schema.String.pipe(Schema.pattern(/x/)):
+    labels:
+    - source: Schema.pattern
+      style: primary
+      start: 19
+      end: 33

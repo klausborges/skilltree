@@ -1,0 +1,8 @@
+id: no-layer-memory
+valid:
+  - 'class Store { static readonly layerInMemoryStore = Layer.sync(Store, make) }'
+  - 'const layerMemoryStore = Layer.sync(Store, make)'
+invalid:
+  - 'class Store { static readonly layerMemory = Layer.sync(Store, make) }'
+  - 'const layerMemory = Layer.sync(Store, make)'
+  - 'Effect.provide(program, Store.layerMemory)'

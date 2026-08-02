@@ -1,0 +1,14 @@
+id: no-v3-effect-either
+snapshots:
+  const r = yield* Effect.either(program):
+    labels:
+    - source: Effect.either
+      style: primary
+      start: 17
+      end: 30
+  program.pipe(Effect.either):
+    labels:
+    - source: Effect.either
+      style: primary
+      start: 13
+      end: 26

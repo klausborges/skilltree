@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+id: no-effect-in-pure-core
+language: TypeScript
+severity: error
+message: "This directory is a pure kernel: no `effect` / `@effect/*` imports."
+note: |
+  Mechanizes the functional-core / imperative-shell split from effect-v4
+  references/architecture.md. Point `files:` at the directories that are meant
+  to stay pure (domain rules, decision functions); everything Effect-shaped
+  belongs in the shell around them. The glob below matches nothing until you
+  set it for the host repo.
+files:
+  - "**/pure/**"
+rule:
+  any:
+    - all:
+        - any:
+            - kind: import_statement
+            - kind: export_statement
+        - has:
+            field: source
+            kind: string
+            regex: "^['\"](?:effect(?:/.*)?|@effect/.*)['\"]$"
+    - pattern: import($SRC)
+constraints:
+  SRC:
+    regex: "^['\"](?:effect(?:/.*)?|@effect/.*)['\"]$"

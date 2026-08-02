@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+id: no-v3-schema-refinements
+language: TypeScript
+severity: error
+message: "v3 free-function refinements (Schema.minLength / maxLength / pattern / int) are gone in Effect v4."
+note: |
+  Refine with `.check(...)`: `Schema.String.check(Schema.isMinLength(n))`,
+  `Schema.isPattern(re)`, or use `Schema.Int`. See effect-v4
+  references/schema-boundaries.md.
+rule:
+  any:
+    - pattern: Schema.minLength
+    - pattern: Schema.maxLength
+    - pattern: Schema.pattern
+    - pattern: Schema.int

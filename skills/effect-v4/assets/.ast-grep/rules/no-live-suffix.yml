@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+id: no-live-suffix
+language: TypeScript
+severity: error
+message: "`Live` suffixes are banned; name layers by what they are (layer, layerNoDeps, layerFake, layerTest, ...)."
+note: |
+  `DatabaseLive` / `static readonly layerLive` say nothing about the
+  implementation. Use the layer naming table in effect-v4
+  references/services-layers.md.
+rule:
+  any:
+    - kind: type_identifier
+      regex: "^[A-Z][A-Za-z]*Live$"
+      inside:
+        any:
+          - kind: class_declaration
+          - kind: interface_declaration
+          - kind: type_alias_declaration
+    - kind: identifier
+      regex: "^[A-Z][A-Za-z]*Live$"
+      inside:
+        kind: variable_declarator
+    - kind: property_identifier
+      regex: "^layerLive$"

@@ -1,0 +1,11 @@
+id: no-v3-schema-refinements
+valid:
+  - 'Schema.String.check(Schema.isMinLength(1))'
+  - 'Schema.String.check(Schema.isPattern(/^[a-z]+$/))'
+  - 'const n = Schema.Int'
+  - 'Schema.String.check(Schema.isMaxLength(64))'
+invalid:
+  - 'Schema.String.pipe(Schema.minLength(1))'
+  - 'Schema.String.pipe(Schema.maxLength(64))'
+  - 'Schema.String.pipe(Schema.pattern(/x/))'
+  - 'Schema.Number.pipe(Schema.int())'

@@ -1,0 +1,24 @@
+id: no-effectful-ternary
+valid:
+  - |
+    function* g() {
+      if (cond) {
+        return yield* a
+      }
+      return yield* b
+    }
+  - 'const x = cond ? 1 : 2'
+  - |
+    function* g() {
+      const v = cond ? plain(1) : plain(2)
+      return yield* use(v)
+    }
+invalid:
+  - |
+    function* g() {
+      return cond ? yield* a : yield* b
+    }
+  - |
+    function* g() {
+      const v = cond ? yield* decode(input) : fallback
+    }

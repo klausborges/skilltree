@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+id: no-manual-runtime-in-tests
+language: TypeScript
+severity: error
+message: "Run tests through @effect/vitest (it.effect / it.live), not a manual Effect runtime."
+note: |
+  Manual Effect.runPromise/runSync/runFork (or ManagedRuntime.make) in a test
+  bypasses TestClock, scope cleanup, and interruption. Return the Effect from
+  `it.effect(...)` / `it.live(...)`. See effect-v4 references/testing.md.
+files:
+  - "**/*.test.ts"
+  - "**/*.spec.ts"
+rule:
+  any:
+    - pattern: Effect.runPromise
+    - pattern: Effect.runPromiseExit
+    - pattern: Effect.runSync
+    - pattern: Effect.runSyncExit
+    - pattern: Effect.runFork
+    - pattern: Effect.runCallback
+    - pattern: ManagedRuntime.make
