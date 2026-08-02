@@ -1,0 +1,20 @@
+id: no-v3-servicemap
+snapshots:
+  const tag = ServiceMap.Service<X>()("X"):
+    labels:
+    - source: ServiceMap
+      style: primary
+      start: 12
+      end: 22
+  import { ServiceMap } from "effect":
+    labels:
+    - source: ServiceMap
+      style: primary
+      start: 9
+      end: 19
+  'let x: ServiceMap<number>':
+    labels:
+    - source: ServiceMap
+      style: primary
+      start: 7
+      end: 17

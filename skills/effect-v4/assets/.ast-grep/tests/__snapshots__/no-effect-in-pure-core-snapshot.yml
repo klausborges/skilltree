@@ -1,0 +1,58 @@
+id: no-effect-in-pure-core
+snapshots:
+  const schema = import("effect/Schema");:
+    labels:
+    - source: import("effect/Schema")
+      style: primary
+      start: 15
+      end: 38
+  export { Schema } from "effect/Schema";:
+    labels:
+    - source: export { Schema } from "effect/Schema";
+      style: primary
+      start: 0
+      end: 39
+    - source: '"effect/Schema"'
+      style: secondary
+      start: 23
+      end: 38
+  import * as Schema from "effect/Schema";:
+    labels:
+    - source: import * as Schema from "effect/Schema";
+      style: primary
+      start: 0
+      end: 40
+    - source: '"effect/Schema"'
+      style: secondary
+      start: 24
+      end: 39
+  import type { Option } from "effect/Option";:
+    labels:
+    - source: import type { Option } from "effect/Option";
+      style: primary
+      start: 0
+      end: 44
+    - source: '"effect/Option"'
+      style: secondary
+      start: 28
+      end: 43
+  import { Effect } from "effect";:
+    labels:
+    - source: import { Effect } from "effect";
+      style: primary
+      start: 0
+      end: 32
+    - source: '"effect"'
+      style: secondary
+      start: 23
+      end: 31
+  import { assert } from "@effect/vitest";:
+    labels:
+    - source: import { assert } from "@effect/vitest";
+      style: primary
+      start: 0
+      end: 40
+    - source: '"@effect/vitest"'
+      style: secondary
+      start: 23
+      end: 39

@@ -1,0 +1,13 @@
+id: no-manual-runtime-in-tests
+valid:
+  - |
+    it.effect("works", () =>
+      Effect.gen(function* () {
+        assert.strictEqual(yield* s.get("a"), "1")
+      }))
+  - 'const fiber = yield* Effect.forkChild(program)'
+invalid:
+  - 'it("works", async () => { await Effect.runPromise(program) })'
+  - 'const x = Effect.runSync(program)'
+  - 'const rt = ManagedRuntime.make(appLayer)'
+  - 'Effect.runFork(program)'

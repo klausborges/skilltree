@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+id: no-v3-servicemap
+language: TypeScript
+severity: error
+message: "ServiceMap is a pre-v4 intermediate-beta name; the service registry lives in the Context module."
+note: |
+  Use the `Context` module (`Context.Service`, `Context.Reference`). See
+  effect-v4 references/services-layers.md.
+rule:
+  any:
+    - kind: identifier
+      regex: "^ServiceMap$"
+    - kind: type_identifier
+      regex: "^ServiceMap$"

@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+id: no-layer-memory
+language: TypeScript
+severity: error
+message: "The generic `layerMemory` name is banned; say what it stores: layerInMemoryStore."
+note: |
+  See the layer naming table in effect-v4 references/services-layers.md.
+rule:
+  any:
+    - kind: identifier
+      regex: "^layerMemory$"
+    - kind: property_identifier
+      regex: "^layerMemory$"

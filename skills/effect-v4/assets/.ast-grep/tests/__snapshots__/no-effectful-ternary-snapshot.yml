@@ -1,0 +1,28 @@
+id: no-effectful-ternary
+snapshots:
+  ? |
+    function* g() {
+      const v = cond ? yield* decode(input) : fallback
+    }
+  : labels:
+    - source: 'cond ? yield* decode(input) : fallback'
+      style: primary
+      start: 28
+      end: 66
+    - source: yield* decode(input)
+      style: secondary
+      start: 35
+      end: 55
+  ? |
+    function* g() {
+      return cond ? yield* a : yield* b
+    }
+  : labels:
+    - source: 'cond ? yield* a : yield* b'
+      style: primary
+      start: 25
+      end: 51
+    - source: yield* a
+      style: secondary
+      start: 32
+      end: 40

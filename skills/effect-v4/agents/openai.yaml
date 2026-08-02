@@ -1,0 +1,4 @@
+interface:
+  display_name: "Effect v4"
+  short_description: "Effect v4 services, schemas, errors, tests, and architecture"
+  default_prompt: "Use $effect-v4 when writing or reviewing Effect v4 code, or shaping the structure of an Effect codebase — verify APIs against the project's pinned effect source before writing."

@@ -1,0 +1,12 @@
+id: no-effect-in-pure-core
+valid:
+  - 'import type { Order } from "./order.js";'
+  - 'import { effectValue } from "effectual";'
+  - 'import { helper } from "@effectual/core";'
+invalid:
+  - 'import { Effect } from "effect";'
+  - 'import * as Schema from "effect/Schema";'
+  - 'import type { Option } from "effect/Option";'
+  - 'import { assert } from "@effect/vitest";'
+  - 'export { Schema } from "effect/Schema";'
+  - 'const schema = import("effect/Schema");'

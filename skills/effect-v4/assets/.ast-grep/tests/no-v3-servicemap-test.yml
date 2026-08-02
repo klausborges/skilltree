@@ -1,0 +1,8 @@
+id: no-v3-servicemap
+valid:
+  - 'const m = new Map<string, Service>()'
+  - 'type ServiceMapping = Record<string, unknown>'
+invalid:
+  - 'import { ServiceMap } from "effect"'
+  - 'const tag = ServiceMap.Service<X>()("X")'
+  - 'let x: ServiceMap<number>'

@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+id: no-effectful-ternary
+language: TypeScript
+severity: error
+message: "Avoid effectful ternaries (a yield* in a branch); prefer if/else or a named helper."
+note: |
+  A ternary whose branch performs `yield*` reads poorly at review time; use
+  ordinary control flow. House preference, not a correctness bug.
+rule:
+  kind: ternary_expression
+  has:
+    kind: yield_expression
+    stopBy:
+      any:
+        - kind: function_declaration
+        - kind: function_expression
+        - kind: generator_function
+        - kind: generator_function_declaration
+        - kind: arrow_function
+        - kind: method_definition

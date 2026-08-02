@@ -1,0 +1,18 @@
+# Authoring traps, all measured against the pinned @ast-grep/cli:
+#
+# - Metavariable names are case-sensitive. In a `pattern`, `$X` is a
+#   metavariable and matches anything — including source that literally reads
+#   `$X`. `$x` is a literal identifier and matches only itself. Uppercase by
+#   accident and the rule silently matches everything.
+# - `regex` on a `kind: string` node matches the node text *with its quotes*,
+#   so an anchored source-path check must be written `^['"]effect['"]$`.
+#   `^effect$` never matches.
+# - `testDir` is globbed recursively, so every stray YAML under it becomes a
+#   test case — a snapshot file that lands outside `__snapshots__` is picked up
+#   as a second, silently skipped case for the same rule id rather than an
+#   error. Keep snapshots in `__snapshots__` and nothing else under `testDir`.
+
+ruleDirs:
+  - .ast-grep/rules
+testConfigs:
+  - testDir: .ast-grep/tests

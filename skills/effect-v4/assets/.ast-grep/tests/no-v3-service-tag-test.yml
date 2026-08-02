@@ -1,0 +1,9 @@
+id: no-v3-service-tag
+valid:
+  - 'export class Ok extends Context.Service<Ok, {}>()("app/Ok") {}'
+  - 'const r = Context.Reference<R>("app/R", { defaultValue: () => 0 })'
+  - 'const c = Context.TagClass'
+invalid:
+  - 'export class A extends Context.Tag("A")<A, {}>() {}'
+  - 'const b = Context.GenericTag<B>("B")'
+  - 'export class C extends Effect.Tag("C")<C, {}>() {}'

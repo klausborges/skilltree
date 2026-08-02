@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+id: no-v3-effect-either
+language: TypeScript
+severity: error
+message: "Effect.either is gone in v4; use Effect.result with Result for two-armed inspection."
+note: |
+  `const r = yield* Effect.result(eff)` then `Result.isSuccess(r)` /
+  `Result.isFailure(r)`. See effect-v4 references/errors.md.
+rule:
+  pattern: Effect.either
