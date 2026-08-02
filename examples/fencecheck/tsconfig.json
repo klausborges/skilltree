@@ -1,0 +1,14 @@
+{
+  "extends": [
+    "../../skills/effect-v4/assets/tsconfig-compiler-options.json",
+    "../../skills/effect-v4/assets/tsconfig-language-service.json"
+  ],
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts", "fixtures/tsgo/**/*.ts"]
+}
