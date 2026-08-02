@@ -7,8 +7,8 @@ note: |
   Mechanizes the functional-core / imperative-shell split from effect-v4
   references/architecture.md. Point `files:` at the directories that are meant
   to stay pure (domain rules, decision functions); everything Effect-shaped
-  belongs in the shell around them. The glob below matches nothing until you
-  set it for the host repo.
+  belongs in the shell around them. The default `**/pure/**` matches any
+  directory named `pure` at any depth — repoint it at your kernel directories.
 files:
   - "**/pure/**"
 rule:
