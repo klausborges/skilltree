@@ -105,7 +105,7 @@ service, and the error channel is forwarded unchanged.
 ```ts
 import { Effect, Schema } from "effect"
 
-class SmtpError extends Schema.TaggedErrorClass<SmtpError>()("SmtpError", {}) {}
+class SmtpError extends Schema.TaggedError<SmtpError>()("SmtpError", {}) {}
 type Mail = { readonly to: string }
 
 interface SmtpClient {
@@ -135,8 +135,8 @@ the layer below lacks.
 ```ts
 import { Effect, Schema } from "effect"
 
-class SqlError extends Schema.TaggedErrorClass<SqlError>()("SqlError", {}) {}
-class StoreError extends Schema.TaggedErrorClass<StoreError>()("StoreError", {
+class SqlError extends Schema.TaggedError<SqlError>()("SqlError", {}) {}
+class StoreError extends Schema.TaggedError<StoreError>()("StoreError", {
   op: Schema.String,
 }) {}
 type Invoice = { readonly id: string }
@@ -162,7 +162,7 @@ in.
 ```ts
 import { Context, Effect, Schema } from "effect"
 
-export class ScanError extends Schema.TaggedErrorClass<ScanError>()("ScanError", {
+export class ScanError extends Schema.TaggedError<ScanError>()("ScanError", {
   root: Schema.String,
   cause: Schema.Defect(),
 }) {}

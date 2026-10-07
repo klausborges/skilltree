@@ -1,17 +1,22 @@
 ---
 name: effect-v4
-description: Effect v4 (4.0.0-beta.x) patterns and architecture judgment for TypeScript. Use when writing or reviewing Effect services, layers, schemas, typed errors, boundaries, config, CLIs, runtimes, or tests; when shaping or reviewing the structure of an Effect project, proposing a service or boundary, or arguing a wrapper is unnecessary — or when a project depends on `effect@4`. Effect v4 differs sharply from v3 and from plain TypeScript; verify APIs against the project's pinned source instead of recalling them.
+description: Effect v4 (effect@4.0.x stable) patterns and architecture judgment for TypeScript. Use when writing or reviewing Effect services, layers, schemas, typed errors, boundaries, config, CLIs, runtimes, or tests; when shaping or reviewing the structure of an Effect project, proposing a service or boundary, or arguing a wrapper is unnecessary — or when a project depends on `effect@4`. Effect v4 differs sharply from v3 and from plain TypeScript; verify APIs against the project's pinned source instead of recalling them.
 compatibility: The enforcement preset script requires nu (nushell); its gates use the target project's effect-tsgo and oxlint installs plus ast-grep from the target or PATH.
 ---
 
 # Effect v4
 
-Effect v4 is barely present in model training data, and `effect.website`
-documents v3 — recalled APIs look right and are wrong. Betas are not monotonic:
-a pattern from another beta is evidence to verify, not a fact, and even the
-first-party docs lag the shipped code (`migration/yieldable.md` still documents
-an `.asEffect()` that does not exist). When any of these disagree with the
-source, the source wins.
+Effect v4 is barely present in model training data, and most Effect material —
+including `effect.website`'s unversioned `/docs/` pages — is v3: recalled APIs
+look right and are wrong. 4.0.0 is the first stable release, but the beta and
+rc series renamed APIs right up to it (`Schema.TaggedErrorClass` →
+`Schema.TaggedError`, `Config.int` → `Config.Int`, `effect/unstable/cli` →
+`effect/cli`), so a pre-release pattern is evidence to verify, not a fact.
+APIs tagged `@stability unstable` — nearly every module under `effect/<area>`,
+plus `Arbitrary` — may still break in a minor release. Even the first-party
+docs lag the shipped code (`migration/yieldable.md` documents an `.asEffect()`
+on `Option` and `Result` that 4.0.0 does not have). When any of these disagree
+with the source, the source wins.
 
 Established project conventions take precedence unless the task is explicitly
 changing them.
@@ -24,7 +29,7 @@ Check these before guessing, highest authority first:
 2. A pinned checkout of the Effect source, if the repo vendors one, at the tag
    matching the project's version.
 3. First-party docs in that checkout: `LLMS.md`, `ai-docs/src/**`,
-   `migration/**`, `packages/effect/SCHEMA.md`.
+   `migration/**`, `packages/effect/{SCHEMA,CONFIG,ARBITRARY}.md`.
 4. These reference files.
 
 State the project's pinned version before writing Effect code.
@@ -55,7 +60,7 @@ If a task spans several, read all the matching files before editing.
 | Attach an implementation | `static readonly layer = Layer.effect(X, ...)` returning `X.of({...})` |
 | Name a function returning an Effect | `Effect.fn("X.method")(function* () {...})` |
 | Add combinators to an `Effect.fn` | trailing arguments — **not** `.pipe` |
-| Define an error | `class E extends Schema.TaggedErrorClass<E>()("E", {...}) {}` |
+| Define an error | `class E extends Schema.TaggedError<E>()("E", {...}) {}` |
 | Raise an error | `return yield* E.make({...})` — the `return` is required |
 | Catch | `Effect.catchTag` / `catchTags`; `Effect.catch` for the whole channel |
 | Wrap a foreign cause | `cause: Schema.Defect()` |

@@ -1,4 +1,4 @@
-# Services and layers (effect@4.0.0-beta.100)
+# Services and layers (effect@4.0.0)
 
 Whether something earns a service at all is [architecture.md](architecture.md)'s
 call — the dependency-category table there sets the default. This file owns the
@@ -24,7 +24,7 @@ export class Database extends Context.Service<Database, {
   )
 }
 
-export class DatabaseError extends Schema.TaggedErrorClass<DatabaseError>()("DatabaseError", {
+export class DatabaseError extends Schema.TaggedError<DatabaseError>()("DatabaseError", {
   cause: Schema.Defect(),
 }) {}
 ```
@@ -83,7 +83,7 @@ Never hide required authority — credentials, persistence, transports — behin
 ```ts
 static readonly layer = Layer.unwrap(
   Effect.gen(function* () {
-    const inMemory = yield* Config.boolean("STORE_IN_MEMORY").pipe(Config.withDefault(false))
+    const inMemory = yield* Config.Boolean("STORE_IN_MEMORY").pipe(Config.withDefault(false))
     return inMemory ? MessageStore.layerInMemoryStore : MessageStore.layer
   }),
 )

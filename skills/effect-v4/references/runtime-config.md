@@ -1,4 +1,4 @@
-# Runtime, entrypoints, config (effect@4.0.0-beta.100)
+# Runtime, entrypoints, config (effect@4.0.0)
 
 ## The composition root
 
@@ -78,9 +78,9 @@ share instances, share one `Layer.makeMemoMapUnsafe()`.
 ## CLI
 
 ```ts
-import { Command, Flag } from "effect/unstable/cli"
+import { Command, Flag } from "effect/cli"
 
-const root = Command.make("greet", { name: Flag.string("name") }, ({ name }) =>
+const root = Command.make("greet", { name: Flag.String("name") }, ({ name }) =>
   Effect.gen(function* () {
     const g = yield* Greeter
     yield* Effect.log(yield* g.hello(name))
@@ -89,7 +89,11 @@ const root = Command.make("greet", { name: Flag.string("name") }, ({ name }) =>
 export const cli = Command.runWith(root, { version: "1.0.0" })
 ```
 
-- v3 `Options` → `Flag`, `Args` → `Argument`.
+- `effect/cli` is `@stability unstable` — `Command`, `Flag`, and `Argument`
+  included — and may break in a minor release.
+- v3 `Options` → `Flag`, `Args` → `Argument`. Constructors are PascalCase:
+  `Flag.String`, `Flag.Int`, `Flag.Boolean`, `Argument.String` — the
+  pre-4.0.0 `Flag.string` / `Flag.integer` are gone.
 - `Command.runWith(root, { version })` takes an explicit argv and is the
   **dispatch-test seam**; `Command.run` reads `Stdio` directly.
 - `Command.withSharedFlags` parses both before *and* after the subcommand.
@@ -101,23 +105,22 @@ Read every environment value through `Config`. `process.env` in application logi
 is an error.
 
 ```ts
-export const port = Config.int("PORT").pipe(Config.withDefault(3000))
+export const port = Config.Int("PORT").pipe(Config.withDefault(3000))
 ```
 
-Constructors (all lowercase functions): `string` `nonEmptyString` `number` `int`
-`finite` `boolean` `redacted` `url` `port` `logLevel` `duration` `date`
-`literal` `literals` `succeed` `all` `schema`.
-Combinators: `option` `withDefault` `orElse` `map` `mapOrFail` `nested` `unwrap`.
+Constructors (PascalCase, like `Schema`): `String` `NonEmptyString` `Number`
+`Int` `Finite` `Boolean` `Redacted` `URL` `Port` `LogLevel` `Duration`
+`ByteSize` `Date` `Literal` `Literals` `Array` `Record`; plus `succeed` `fail`
+`all` `schema`.
+Combinators: `option` `withDefault` `orElse` `map` `mapEffect` `flatMap`
+`nested` `unwrap`.
 
-Two easy mistakes:
+The lowercase constructors (`Config.int`, `Config.port`, …) and
+`Config.mapOrFail` are pre-4.0.0 names and no longer exist; neither does
+`Config.integer`.
 
-- There is no `Config.integer` — it is `Config.int`.
-- `Config.Port` and `Config.LogLevel` (capitalised) are **Schemas**, not Configs,
-  and are not callable. The constructors are `Config.port(name?)` and
-  `Config.logLevel(name?)`.
-
-`literal` / `literals` take the value(s) first and the name second:
-`Config.literals(["a", "b"], "MODE")`.
+`Literal` / `Literals` take the value(s) first and the name second:
+`Config.Literals(["a", "b"], "MODE")`.
 
 For structured config, decode with a schema:
 
@@ -129,10 +132,12 @@ const ServerConfig = Config.schema(
 ```
 
 `Config.withDefault` and `Config.option` recover from **missing** data only —
-validation errors still propagate. `ConfigError` wraps either a `SourceError`
-(I/O) or a `SchemaError` (shape); branch on `error.cause._tag`.
+validation errors still propagate. On a `Config.all` group, one absent child
+makes the default replace the whole group; default the children individually.
+`ConfigError` wraps either a `SourceError` (I/O) or a `SchemaError` (shape);
+branch on `error.cause._tag`.
 
-Secrets use `Config.redacted`; unwrap with `Redacted.value` only inside the
+Secrets use `Config.Redacted`; unwrap with `Redacted.value` only inside the
 adapter that needs the plaintext.
 
 ### Providers
@@ -147,7 +152,7 @@ Effect.provideService(program, ConfigProvider.ConfigProvider, ConfigProvider.fro
   SCREAMING_SNAKE keys, `nested` for prefixes.
 - `ConfigProvider.fromEnv({ env })` **replaces** the environment map rather than
   extending it — include every variable the code reads.
-- Since beta.95 empty strings count as missing; `preserveEmptyStrings: true`
+- Empty strings count as missing by default; `preserveEmptyStrings: true`
   opts out.
 
 ## Platform services
@@ -163,9 +168,9 @@ destroy testability.
 
 ## Observability
 
-Prefer `effect/unstable/observability` (`OtlpTracer`, `OtlpLogger`,
-`OtlpSerialization`) for new projects; `@effect/opentelemetry` when integrating
-with an existing OTel setup.
+Prefer `effect/observability` (`OtlpTracer`, `OtlpLogger`,
+`OtlpSerialization`; `@stability unstable`) for new projects;
+`@effect/opentelemetry` when integrating with an existing OTel setup.
 
 `Otlp.layerJson` appends `/v1/{logs,metrics,traces}` — the configured base URL
 must not already carry a signal path. Provide the observability layer last, and

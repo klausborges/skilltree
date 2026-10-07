@@ -1,6 +1,6 @@
 import { Effect, Schema } from "effect"
 
-export class BadError extends Schema.TaggedErrorClass<BadError>()("BadError", {
+export class BadError extends Schema.TaggedError<BadError>()("BadError", {
   input: Schema.String,
 }) {}
 

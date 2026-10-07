@@ -1,6 +1,6 @@
 import { Clock, Context, Effect, Layer, Schema } from "effect"
 
-export class ParseInputError extends Schema.TaggedErrorClass<ParseInputError>()("ParseInputError", {
+export class ParseInputError extends Schema.TaggedError<ParseInputError>()("ParseInputError", {
   input: Schema.String,
 }) {}
 

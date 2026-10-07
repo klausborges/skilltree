@@ -1,4 +1,4 @@
-# Schedule and Cache (effect@4.0.0-beta.100)
+# Schedule and Cache (effect@4.0.0)
 
 Never hand-roll retry/poll loops (`while` + sleep + counter) or TTL caches
 (`Map` + timestamps). `Schedule` is a reusable policy value; `Cache` is a keyed,
@@ -34,8 +34,8 @@ Effect.retry(task, { while: (e) => e.status >= 500, schedule: backoff })
   bounds when the next retry may start, not total wall time). Compose
   policies with `Schedule.max([...])` (delay pattern + hard cap, e.g. backoff
   with `Schedule.recurs(5)`) and `Schedule.min([...])` (e.g. cap the delay:
-  min of an exponential and `Schedule.spaced("2 seconds")`). The beta-line
-  `Schedule.both`/`either` became `max`/`min` at .96. Predicates can live
+  min of an exponential and `Schedule.spaced("2 seconds")`). The pre-4.0.0
+  `Schedule.both`/`either` are gone — use `max`/`min`. Predicates can live
   schedule-side too: `Schedule.while` with `Schedule.setInputType<E>()` when
   building a standalone policy.
 - Exhausted retries propagate the last failure. To fall back instead:

@@ -1,7 +1,7 @@
-# v3 → v4 API delta (effect@4.0.0-beta.100)
+# v3 → v4 API delta (effect@4.0.0)
 
-Extracted from `migration/*.md` at tag `effect@4.0.0-beta.100`, spot-verified
-against `packages/effect/src/`. Module/package moves live in
+Extracted from `migration/*.md` at tag `effect@4.0.0`, verified against the
+published `effect@4.0.0` types. Module/package moves live in
 [module-paths.md](module-paths.md).
 
 ## Traps — look right, are wrong
@@ -39,8 +39,8 @@ These typecheck or read plausibly. Highest risk first.
     `Semaphore.makeUnsafe`, `Queue.offerUnsafe`, `Layer.makeMemoMapUnsafe`.
 13. **Schema combinators take arrays**: `Schema.Literals(["a","b"])`,
     `Schema.Union([A, B])`, `Schema.Tuple([A, B])`. v3 was variadic.
-14. **`Schema.TaggedErrorClass<Self>()("Tag", fields)` vs
-    `Schema.ErrorClass<Self>("Name")({fields})`** — the argument order differs
+14. **`Schema.TaggedError<Self>()("Tag", fields)` vs
+    `Schema.Error<Self>("Name")({fields})`** — the argument order differs
     between the tagged and untagged forms. Easy to write backwards.
 15. **`Schema.brand` adds no runtime check.** It only narrows the type.
 16. **`Stream.async` / `asyncEffect` / `asyncPush` / `asyncScoped` all collapse to
@@ -63,7 +63,7 @@ These typecheck or read plausibly. Highest risk first.
 | `Context.Reference<Self>()(id, opts)` | `Context.Reference<T>(id, opts)` |
 
 `ServiceMap.Service` was a real intermediate-beta name (≈beta.40) renamed to
-`Context.Service` by beta.47. There is no `ServiceMap` module in beta.100.
+`Context.Service` by beta.47. There is no `ServiceMap` module in 4.0.0.
 
 ## Errors
 
@@ -79,7 +79,7 @@ These typecheck or read plausibly. Highest risk first.
 | `Effect.either` | `Effect.result` |
 | `Effect.optionFromOptional` | `Effect.catchNoSuchElement` |
 | `Effect.ignoreLogged` | `Effect.ignore` |
-| `Data.TaggedError` (for schema-crossing errors) | `Schema.TaggedErrorClass` |
+| `Data.TaggedError` (for schema-crossing errors) | `Schema.TaggedError` |
 
 `catchTag`, `catchTags`, `catchIf` are unchanged. New in v4:
 `catchReason`, `catchReasons`, `catchEager`, `unwrapReason`.
@@ -138,9 +138,12 @@ Yieldable in `Effect.gen`: `Effect`, `Config`, `Context.Service`.
 fails to compile (and fails at runtime if you force past it with a cast). Lift
 them with `Effect.fromOption` / `Effect.fromResult`.
 
-> `migration/yieldable.md` describes a `Yieldable` trait with an `.asEffect()`
-> method. Neither exists in the beta.100 source. The first-party migration docs
-> lag the shipped code — when they disagree, the source wins.
+> `migration/yieldable.md` describes `Option` and `Result` as yieldable and
+> gives them and `Config` an `.asEffect()` method. In the 4.0.0 types `yield*`
+> over `Option`/`Result` fails to compile and none of the three has
+> `asEffect`; the only one is the abstract method on `Effectable.Class` for
+> custom Effect types. The first-party migration docs lag the shipped code —
+> when they disagree, the source wins.
 
 ## FiberRef → References
 
@@ -148,9 +151,11 @@ them with `Effect.fromOption` / `Effect.fromResult`.
 `Context.Reference`; read with `yield* Reference`, set with
 `Effect.provideService(eff, Reference, v)`. (`Differ` still exists.)
 
-Built-ins moved to `References.*`: `CurrentConcurrency`, `CurrentLogLevel`,
-`MinimumLogLevel`, `CurrentLogAnnotations`, `CurrentLogSpans`, `Scheduler`,
-`MaxOpsBeforeYield`, `TracerEnabled`, `UnhandledLogLevel`.
+Built-ins moved to `References.*`: `CurrentLogLevel`, `MinimumLogLevel`,
+`CurrentLogAnnotations`, `CurrentLogSpans`, `Scheduler`, `MaxOpsBeforeYield`,
+`TracerEnabled`, `UnhandledLogLevel`. There is no concurrency reference:
+`Effect.withConcurrency` and `"inherit"` concurrency were removed — pass a
+number or `"unbounded"`.
 
 ## Behavioral changes — no API signal
 
@@ -167,13 +172,30 @@ Built-ins moved to `References.*`: `CurrentConcurrency`, `CurrentLogLevel`,
 Auto-memoization is a safety net, **not** a substitute for composing layers
 before providing.
 
-## Churn between betas
+## Pre-release names that no longer exist
 
-Concrete cases, as evidence that a pattern from another beta proves nothing:
+The beta and rc series renamed APIs right up to 4.0.0. Code, docs, and
+examples written against a pre-release use these; all fail to compile on
+4.0.0.
 
-- `Schema.Defect` in `TaggedErrorClass` fields — worked at .59, **crashed at .83**,
-  works .93+. `Schema.Unknown` for `cause` is a dead workaround.
-- .95 — ConfigProviders treat empty strings as missing (`preserveEmptyStrings` opts out).
-- .96 — `Schedule` combinators removed, including `Schedule.both`.
-- .98 — Schema union candidate ordering fixed.
-- .99/.100 — CLI and tagged-union inference fixes.
+| Pre-4.0.0 | 4.0.0 |
+|---|---|
+| `effect/unstable/<area>` | `effect/<area>` (still `@stability unstable`) |
+| `effect/unstable/httpapi` | `effect/http-api` |
+| `Schema.TaggedErrorClass` / `Schema.ErrorClass` | `Schema.TaggedError` / `Schema.Error` |
+| `Schema.Error()` (native `Error` schema) | `Schema.ErrorInstance()` |
+| `Schema.isStartsWith` / `isEndsWith` / `isIncludes` / `isLengthBetween` | `isStartingWith` / `isEndingWith` / `isIncluding` / `isBetweenLength` |
+| `Config.int`, `Config.port`, … (lowercase) / `Config.mapOrFail` | `Config.Int`, `Config.Port`, … / `Config.mapEffect` |
+| `Flag.string` / `Flag.integer` / `Command.withHidden` | `Flag.String` / `Flag.Int` / `Command.unlisted` |
+| `effect/testing/FastCheck`, `Schema.toArbitrary` | `effect/Arbitrary` (native engine, unstable) |
+| `SchemaGetter.transformOrFail` | `SchemaGetter.transformEffect` |
+| `Schedule.andThen` | `Schedule.concat` |
+| `effect/Encoding`, `effect/SchemaError` | `effect/encoding/*`, `Schema.SchemaError` |
+
+Earlier churn, as evidence that a pre-release pattern proves nothing:
+
+- `Schema.Defect` in tagged-error fields — worked at beta.59, **crashed at
+  .83**, works .93+. `Schema.Unknown` for `cause` is a dead workaround.
+- beta.95 — ConfigProviders treat empty strings as missing
+  (`preserveEmptyStrings` opts out).
+- beta.96 — `Schedule` combinators removed, including `Schedule.both`.
