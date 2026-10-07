@@ -70,7 +70,7 @@ HTTP splits across two namespaces — client/router/server in `effect/http`,
 
 ## `effect/testing`
 
-`TestClock` · `TestConsole` · `TestSchema` (`@stability unstable`)
+`TestClock` · `TestConsole` · `TestSchema` (only `TestSchema` is `@stability unstable`)
 
 Property testing is core `Arbitrary` (`effect/Arbitrary`, `@stability
 unstable`): Effect's own engine, not fast-check, which it does not accept.

@@ -83,7 +83,7 @@ Never hide required authority — credentials, persistence, transports — behin
 ```ts
 static readonly layer = Layer.unwrap(
   Effect.gen(function* () {
-    const inMemory = yield* Config.boolean("STORE_IN_MEMORY").pipe(Config.withDefault(false))
+    const inMemory = yield* Config.Boolean("STORE_IN_MEMORY").pipe(Config.withDefault(false))
     return inMemory ? MessageStore.layerInMemoryStore : MessageStore.layer
   }),
 )
