@@ -106,10 +106,9 @@ re-patches an already-patched compiler.
 Adapter files are where vendor reality lands, and a few diagnostics have to
 yield there. Silence the narrowest thing that works:
 
-- `// @effect-diagnostics <rule>:off` at the top of the file — the preferred
-  form. A project-local plugin `overrides` entry is discarded by any runner
-  that injects config with `--lspconfig` (it *replaces* project plugin config);
-  the pragma survives both paths. See `references/runtime-config.md`.
+- `// @effect-diagnostics <rule>:off` at the top of the file — preferred over a
+  project-local plugin `overrides` entry, which a `--lspconfig` runner
+  discards; see `references/runtime-config.md`.
 - For `leakingRequirements` specifically, the language service has two JSDoc
   escapes: `@effect-leakable-service` on the interface declaration of a
   dependency that is meant to be passed through, or
