@@ -52,23 +52,23 @@
           },
           {
             "name": "@effect/cli",
-            "message": "v3 package — effect/unstable/cli"
+            "message": "v3 package — effect/cli"
           },
           {
             "name": "@effect/rpc",
-            "message": "v3 package — effect/unstable/rpc"
+            "message": "v3 package — effect/rpc"
           },
           {
             "name": "@effect/cluster",
-            "message": "v3 package — effect/unstable/cluster"
+            "message": "v3 package — effect/cluster"
           },
           {
             "name": "@effect/experimental",
-            "message": "v3 package — effect/unstable/*"
+            "message": "v3 package — effect/<area> subsystems (effect/persistence, effect/eventlog, …)"
           },
           {
             "name": "@effect/workflow",
-            "message": "v3 package — effect/unstable/workflow"
+            "message": "v3 package — effect/workflow"
           },
           {
             "name": "@effect/typeclass",
@@ -76,11 +76,11 @@
           },
           {
             "name": "@effect/sql",
-            "message": "v3 meta package — effect/unstable/sql; @effect/sql-* drivers ARE allowed"
+            "message": "v3 meta package — effect/sql; @effect/sql-* drivers ARE allowed"
           },
           {
             "name": "fast-check",
-            "message": "FastCheck ships inside core — effect/testing"
+            "message": "property tests use core Arbitrary (effect/Arbitrary), not fast-check"
           }
         ],
         "patterns": [

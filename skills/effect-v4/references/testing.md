@@ -1,4 +1,4 @@
-# Testing (effect@4.0.0-beta.100)
+# Testing (effect@4.0.0)
 
 Test through public service seams with real layers and fakes. Do not reach into
 module internals.
@@ -10,7 +10,7 @@ import { TestClock } from "effect/testing"
 ```
 
 Keep `effect` and `@effect/vitest` on the **same version** — a mismatch produces
-confusing type errors.
+confusing type errors. `@effect/vitest` 4.0.x peers on Vitest 5.
 
 ## Test forms
 
@@ -19,7 +19,7 @@ confusing type errors.
 | `it.effect` | Effect-returning tests — the default |
 | `it.live` | only when real wall-clock time is under test |
 | `it` | pure synchronous functions |
-| `it.effect.prop` | property tests, including Schema-derived arbitraries |
+| `it.prop` / `it.effect.prop` | property tests over Schemas or `Arbitrary` values |
 | `layer(L)("name", (it) => ...)` | one shared layer instance across a block |
 
 Rules:
@@ -28,8 +28,8 @@ Rules:
   vitest, so `expect` is available — it is simply not the house style.)
 - Never `Effect.runSync` / `runPromise` inside a test — return the Effect.
 - `it.effect` installs `TestClock` at epoch; `it.live` does not.
-- Plain `it.prop` **rejects** Schema arbitraries — use `it.effect.prop`, or
-  `effect/testing/FastCheck` directly.
+- `it.prop` (synchronous) and `it.effect.prop` both take an array or record of
+  Schemas and `Arbitrary` values — see [Property tests](#property-tests).
 
 ## Providing layers
 
@@ -143,12 +143,36 @@ Effect.provideService(program, ConfigProvider.ConfigProvider, ConfigProvider.fro
 Use `ConfigProvider.fromUnknown` when the decoding path is what you are testing;
 otherwise provide a config service layer with literal values directly.
 
-## Schema-backed tests
+## Property tests
 
-- `Schema.toArbitrary(schema, { report: true })` surfaces refinements that
-  generation cannot honour.
-- `effect/testing/TestSchema.Asserts` checks codec round-trip laws.
-- Keep a shrunk counterexample as a named regression test.
+Property testing is core `Arbitrary` — Effect's own engine, `@stability
+unstable`. fast-check is not used and its generators are not accepted;
+`effect/testing/FastCheck` and `Schema.toArbitrary` no longer exist.
+
+```ts
+import { Arbitrary, Effect, Schema } from "effect"
+
+it.prop("addition commutes", [Schema.Int, Schema.Int], ([a, b]) => a + b === b + a)
+
+it.effect.prop("names round-trip", { name: Arbitrary.schema(Name) }, ({ name }) =>
+  Effect.gen(function* () {
+    assert.strictEqual(yield* roundTrip(name), name)
+  }), { arbitrary: { runs: 200 } })
+```
+
+- Returning `false`, throwing (a failed `assert` included), or failing the
+  Effect falsifies the property; the input is then shrunk. Interruption stays
+  interruption.
+- The failure message carries the shrunk input and a `Replay:` token. Pass it
+  back as `{ arbitrary: { replay } }` to reproduce the failure and its shrink
+  path. Tokens are not guaranteed across releases — keep a shrunk
+  counterexample as an ordinary named regression test.
+- `Arbitrary.schema(S)` derives generation from a Schema and throws at
+  derivation when it cannot; there is no report option. `Arbitrary.checkEffect`
+  and `Arbitrary.sampleEffect` run outside vitest; `Arbitrary.configureGlobal`
+  sets default `runs`/`seed`.
+- `TestSchema.Asserts` from `effect/testing` (also unstable) checks codec
+  round-trip laws: `verifyRoundTrip()` / `verifyRoundTripEffect()`.
 
 ## Type-level proofs
 

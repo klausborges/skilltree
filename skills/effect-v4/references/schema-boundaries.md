@@ -1,4 +1,4 @@
-# Schema and boundaries (effect@4.0.0-beta.100)
+# Schema and boundaries (effect@4.0.0)
 
 **Parse at the boundary.** Untrusted input — HTTP, DB rows, env, filesystem, CLI
 args, IPC, external APIs, model output — gets decoded into typed domain values at
@@ -17,7 +17,7 @@ and never use `as` to skip validation.
 | `Schema.Struct` + `interface` | plain structural shapes and wire contracts |
 | `Schema.TaggedClass` + `Schema.Union` | variants (OR types) |
 | `Schema.Literals([...])` | simple string/number unions |
-| `Schema.TaggedErrorClass` | errors — see [errors.md](errors.md) |
+| `Schema.TaggedError` | errors — see [errors.md](errors.md) |
 
 ```ts
 export class User extends Schema.Class<User>("User")({
@@ -54,10 +54,12 @@ Schema.String.check(Schema.isMinLength(1), Schema.isPattern(/^[a-z-]+$/))
 Schema.Int.check(Schema.isGreaterThan(0))
 ```
 
-Available: `isMinLength` `isMaxLength` `isLengthBetween` `isPattern`
-`isStartsWith` `isEndsWith` `isIncludes` `isTrimmed` `isNonEmpty` `isUUID`
-`isULID` `isBase64` `isBetween` `isGreaterThan(OrEqualTo)`
-`isLessThan(OrEqualTo)` `isInt` `isMultipleOf` `isUnique`.
+Available: `isMinLength` `isMaxLength` `isBetweenLength` `isPattern`
+`isStartingWith` `isEndingWith` `isIncluding` `isTrimmed` `isNonEmpty` `isUUID`
+`isULID` `isBase64` `isBetween({ minimum, maximum })`
+`isGreaterThan(OrEqualTo)` `isLessThan(OrEqualTo)` `isInt` `isMultipleOf`
+`isUnique`. The pre-4.0.0 spellings `isLengthBetween`, `isStartsWith`,
+`isEndsWith`, and `isIncludes` are gone.
 
 `.check` does not change the schema type — `.fields` and `.make` still work.
 Filters must be **synchronous**; effectful validation goes through

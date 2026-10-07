@@ -1,4 +1,4 @@
-# Errors (effect@4.0.0-beta.100)
+# Errors (effect@4.0.0)
 
 Every failure a caller could reasonably handle belongs in the error channel as a
 tagged error. Reserve defects for genuine bugs and impossible states.
@@ -8,29 +8,33 @@ tagged error. Reserve defects for genuine bugs and impossible states.
 ```ts
 import { Schema } from "effect"
 
-export class ParseInputError extends Schema.TaggedErrorClass<ParseInputError>()("ParseInputError", {
+export class ParseInputError extends Schema.TaggedError<ParseInputError>()("ParseInputError", {
   input: Schema.String,
 }) {}
 ```
 
-- `Schema.TaggedErrorClass` is the default — use it for anything that crosses a
+- `Schema.TaggedError` is the default — use it for anything that crosses a
   boundary (HTTP, persistence, IPC, logs, another module's error channel).
-- `Data.TaggedError` remains legitimate for internal errors that never need
-  decode/encode. If in doubt, use the Schema form.
+  Before 4.0.0 it was `Schema.TaggedErrorClass`, which no longer exists.
+- `Data.TaggedError` — same name, different module, no schema — remains
+  legitimate for internal errors that never need decode/encode. If in doubt,
+  use the Schema form.
 - Pass `Self` as the first type argument. The tag string usually matches the class
   name and doubles as the schema identifier.
-- Zero-field errors: `Schema.TaggedErrorClass<E>()("E", {})`.
+- Zero-field errors: `Schema.TaggedError<E>()("E", {})`.
 - Untagged variant has a **different argument order**:
-  `Schema.ErrorClass<Self>("Name")({ fields })`.
+  `Schema.Error<Self>("Name")({ fields })` (formerly `Schema.ErrorClass`). The
+  schema for native JS `Error` values is now `Schema.ErrorInstance()`.
 
 ```ts
-export class WrappedError extends Schema.TaggedErrorClass<WrappedError>()("WrappedError", {
+export class WrappedError extends Schema.TaggedError<WrappedError>()("WrappedError", {
   cause: Schema.Defect(),
 }) {}
 ```
 
 `Schema.Defect()` — invoked, not referenced — transports unknown causes through
-JSON non-losslessly. The beta.83–.92 `Schema.Unknown` workaround is obsolete.
+JSON non-losslessly. A `Schema.Unknown` cause field is an obsolete pre-release
+workaround.
 
 ## Constructing and raising
 
@@ -105,7 +109,7 @@ program.pipe(Effect.catchDefect((u) =>
   isParseInputError(u) ? Effect.succeed(u.input) : Effect.die(u)))
 ```
 
-- **Schema classes** (`Schema.Class`, `Schema.TaggedErrorClass`, …) —
+- **Schema classes** (`Schema.Class`, `Schema.TaggedError`, …) —
   `Schema.is(Class)` returns a type guard `(input) => input is Class`. Hoist it;
   it builds a parser per call site otherwise. `instanceof` on a Schema class is
   an `instanceOfSchema` error in the preset.
@@ -118,7 +122,7 @@ When one error has several distinct causes, model them as a `reason` union rathe
 than proliferating top-level error types:
 
 ```ts
-export class AiError extends Schema.TaggedErrorClass<AiError>()("AiError", {
+export class AiError extends Schema.TaggedError<AiError>()("AiError", {
   reason: Schema.Union([RateLimit, SafetyBlocked]),
 }) {}
 
@@ -159,7 +163,7 @@ a truthful response.
   paths — those failures are expected and must stay typed.
 - Do not use `try`/`catch` inside `Effect.gen`. It cannot observe an Effect
   failure and breaks the semantics. Use `Effect.result` and branch.
-- Do not hand-roll `_tag` error classes when `Schema.TaggedErrorClass` fits.
+- Do not hand-roll `_tag` error classes when `Schema.TaggedError` fits.
 - Do not `extends Error` for domain errors.
 - Do not catch or retry where the boundary has no truthful response — let
   exhausted failures stay visible.

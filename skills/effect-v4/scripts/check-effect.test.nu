@@ -97,7 +97,7 @@ def test-project-detection [fixture_root: path] {
   let pkg = ($ws | path join "packages" "app")
   mkdir $pkg
   "lockfile" | save --force ($ws | path join "pnpm-lock.yaml")
-  '{"devDependencies": {"effect": "4.0.0-beta.100"}}' | save --force ($ws | path join "package.json")
+  '{"devDependencies": {"effect": "4.0.0"}}' | save --force ($ws | path join "package.json")
   '{"name": "app"}' | save --force ($pkg | path join "package.json")
 
   let chain = (ancestor-chain $pkg)
