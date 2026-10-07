@@ -1,6 +1,6 @@
 import { Cache, Context, Effect, Exit, Layer, Schedule, Schema } from "effect"
 
-export class UpstreamError extends Schema.TaggedErrorClass<UpstreamError>()("UpstreamError", {
+export class UpstreamError extends Schema.TaggedError<UpstreamError>()("UpstreamError", {
   status: Schema.Int,
 }) {}
 
