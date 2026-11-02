@@ -35,9 +35,10 @@ LogLevel, References, Runtime, ManagedRuntime, ExecutionPlan, Metric, Tracer,
 Cache, ScopedCache, Pool, Resource, Equal, Equivalence, Order, Hash, Struct,
 Tuple, Array, Record, Chunk, HashMap, HashSet, Trie, Graph, Optic, JsonSchema,
 JsonPatch, JsonPointer, LayerMap, LayerRef, Request, RequestResolver, Types,
-ByteSize, Bytes, Cron, SemVer, SemVerRange, StandardSchema, Arbitrary
-(`@stability unstable`; see `effect/testing` below), and the experimental
-`Glob` and `TextDiff`.
+ByteSize, Bytes, Cron, SemVer, SemVerRange, StandardSchema, Arbitrary, Glob,
+TextDiff. Not all of it is stable: a set of core modules (FileSystem, Path,
+Terminal, Stdio, SemVer, Bytes, Arbitrary, …) is `@stability unstable`, and
+`Glob` and `TextDiff` are experimental; check each module's `@stability` tag.
 
 Transactional (v3 `T*` → v4 `Tx*`): TxRef, TxHashMap, TxHashSet, TxQueue,
 TxPubSub, TxSemaphore, TxDeferred, TxPriorityQueue, TxReentrantLock,
@@ -51,7 +52,6 @@ module. The pre-4.0.0 `Encoding` module is split into
 
 **Platform modules are core in v4** — these were `@effect/platform` in v3:
 `FileSystem`, `Path`, `Terminal`, `Stdio`, `PlatformError`, `ChannelSchema`.
-The core `Crypto` module was removed in 4.1; crypto is `effect/crypto` below.
 
 ## `effect/<area>` subsystems
 
@@ -60,11 +60,15 @@ The core `Crypto` module was removed in 4.1; crypto is `effect/crypto` below.
 `persistence` · `process` · `reactivity` · `rpc` · `schema` · `socket` · `sql` ·
 `workers` · `workflow`
 
-These were `effect/unstable/<area>` before 4.0.0; the `unstable` path segment
-and `effect/httpapi` are gone. Every module here except
-`effect/encoding/{Base64,Base64Url,Hex,EncodingError}` is still tagged
-`@stability unstable` and may break in a minor release; untagged APIs follow
-semver. Pin exactly and re-verify unstable surfaces after any bump.
+The pre-4.0.0 areas were `effect/unstable/<area>`; the `unstable` path segment
+and `effect/httpapi` are gone, and `crypto`, `graphql`, `jose` arrived after
+4.0.0. Since 4.0.2 every export carries an explicit `@stability` tag: most here
+are `unstable` (may break in a minor release),
+`encoding/{Base64,Base64Url,Hex,EncodingError}` are `stable`, and these are
+`experimental` (may break in a patch release): `graphql`, `encoding/{Xml,Zip}`,
+`net/{AddressResolver,Dns,Host}`, `persistence/CircuitBreaker`,
+`socket/DatagramSocket`, `ai/McpClient*`. Pin exactly and re-verify after any
+bump.
 
 HTTP splits across two namespaces — client/router/server in `effect/http`,
 `HttpApi*` and `OpenApi` in `effect/http-api`. `effect/crypto` holds

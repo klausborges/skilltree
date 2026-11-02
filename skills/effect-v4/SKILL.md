@@ -13,9 +13,11 @@ look right and are wrong. The beta and rc series renamed APIs right up to
 → `effect/cli`), and 4.1.0 broke more (`effect/Crypto` is gone), so a pattern
 written against an earlier release is evidence to verify, not a fact. APIs
 tagged `@stability unstable` — nearly every module under `effect/<area>`, plus
-`Arbitrary` — may break in a minor release; `@stability experimental` ones
-(`Glob`, `TextDiff`) in a patch release. When docs, examples, or memory
-disagree with the source, the source wins.
+a set of core modules (`FileSystem`, `Path`, `Terminal`, `Stdio`, `SemVer`,
+`Bytes`, `Arbitrary`, …) — may break in a minor release; `@stability
+experimental` ones (`Glob`, `TextDiff`) in a patch release. Check each module's
+`@stability` tag. When docs, examples, or memory disagree with the source, the
+source wins.
 
 Established project conventions take precedence unless the task is explicitly
 changing them.
