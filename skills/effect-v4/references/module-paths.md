@@ -1,8 +1,7 @@
-# Module paths (effect@4.0.0)
+# Module paths (effect@4.1.1)
 
-Verified against the published `effect@4.0.0` package (`package.json` exports,
-`src/`, `dist/*.d.ts`) and `@effect/platform-node`, `@effect/platform-bun`,
-`@effect/vitest` at `4.0.0`.
+Verified against the `effect@4.1.1` source (`package.json` exports, `src/`) and
+`@effect/platform-node`, `@effect/platform-bun`, `@effect/vitest` at `4.1.1`.
 
 In v4 most of the v3 `@effect/*` ecosystem was absorbed into core `effect`.
 Importing a v3 package name is the single most common agent failure.
@@ -36,8 +35,9 @@ LogLevel, References, Runtime, ManagedRuntime, ExecutionPlan, Metric, Tracer,
 Cache, ScopedCache, Pool, Resource, Equal, Equivalence, Order, Hash, Struct,
 Tuple, Array, Record, Chunk, HashMap, HashSet, Trie, Graph, Optic, JsonSchema,
 JsonPatch, JsonPointer, LayerMap, LayerRef, Request, RequestResolver, Types,
-ByteSize, StandardSchema, Arbitrary (`@stability unstable`; see `effect/testing`
-below).
+ByteSize, Bytes, Cron, SemVer, SemVerRange, StandardSchema, Arbitrary
+(`@stability unstable`; see `effect/testing` below), and the experimental
+`Glob` and `TextDiff`.
 
 Transactional (v3 `T*` → v4 `Tx*`): TxRef, TxHashMap, TxHashSet, TxQueue,
 TxPubSub, TxSemaphore, TxDeferred, TxPriorityQueue, TxReentrantLock,
@@ -50,14 +50,15 @@ module. The pre-4.0.0 `Encoding` module is split into
 `effect/encoding/{Base64,Base64Url,Hex,EncodingError}`.
 
 **Platform modules are core in v4** — these were `@effect/platform` in v3:
-`FileSystem`, `Path`, `Terminal`, `Crypto`, `Stdio`, `PlatformError`,
-`ChannelSchema`.
+`FileSystem`, `Path`, `Terminal`, `Stdio`, `PlatformError`, `ChannelSchema`.
+The core `Crypto` module was removed in 4.1; crypto is `effect/crypto` below.
 
 ## `effect/<area>` subsystems
 
-`ai` · `cli` · `cluster` · `devtools` · `encoding` · `eventlog` · `http` ·
-`http-api` · `net` · `observability` · `persistence` · `process` ·
-`reactivity` · `rpc` · `schema` · `socket` · `sql` · `workers` · `workflow`
+`ai` · `cli` · `cluster` · `crypto` · `devtools` · `encoding` · `eventlog` ·
+`graphql` · `http` · `http-api` · `jose` · `net` · `observability` ·
+`persistence` · `process` · `reactivity` · `rpc` · `schema` · `socket` · `sql` ·
+`workers` · `workflow`
 
 These were `effect/unstable/<area>` before 4.0.0; the `unstable` path segment
 and `effect/httpapi` are gone. Every module here except
@@ -66,22 +67,24 @@ and `effect/httpapi` are gone. Every module here except
 semver. Pin exactly and re-verify unstable surfaces after any bump.
 
 HTTP splits across two namespaces — client/router/server in `effect/http`,
-`HttpApi*` and `OpenApi` in `effect/http-api`.
+`HttpApi*` and `OpenApi` in `effect/http-api`. `effect/crypto` holds
+`SecureRandom`, `Digest`, and the key-based families (`Mac`, `Aead`,
+`Signature`, …); `effect/process` holds `ChildProcess`, `ChildProcessSpawner`,
+`CommandLine`.
 
 ## `effect/testing`
 
-`TestClock` · `TestConsole` · `TestSchema` (only `TestSchema` is `@stability unstable`)
+`TestClock` · `TestConsole` · `TestSchema` (only `TestClock` is `@stability stable`)
 
 Property testing is core `Arbitrary` (`effect/Arbitrary`, `@stability
 unstable`): Effect's own engine, not fast-check, which it does not accept.
-There is no `FastCheck` module and no `Schema.toArbitrary`.
 
 ## Separate packages
 
 | Package | Provides |
 |---|---|
-| `@effect/platform-node` (re-exports `-node-shared`) | `NodeRuntime`, `NodeServices`, `NodeFileSystem`, `NodeHttpServer`, `NodeStdio`, `NodeTerminal`, `NodeChildProcessSpawner` |
-| `@effect/platform-bun` | `BunRuntime`, `BunServices` |
+| `@effect/platform-node` (re-exports `-node-shared`) | `NodeRuntime`, `NodeServices`, `NodeCrypto`, `NodeFileSystem`, `NodeHttpServer`, `NodeStdio`, `NodeTerminal`, `NodeChildProcessSpawner` |
+| `@effect/platform-bun` | `BunRuntime`, `BunServices`, `BunCrypto` |
 | `@effect/platform-browser` | browser bindings |
 | `@effect/vitest` | `it.effect`, `it.live`, `it.prop`, `layer`, `assert` (peers on Vitest 5) |
 | `@effect/opentelemetry` | OTel SDK bridge (prefer `effect/observability` for new code) |
@@ -91,8 +94,8 @@ There is no `FastCheck` module and no `Schema.toArbitrary`.
 | `@effect/tsgo`, `@effect/language-service` | compiler + diagnostics |
 
 Runtime and provider packages share one release-train version; keep `effect` and
-`@effect/vitest` in lockstep, since a mismatch produces confusing type errors
-(`@effect/vitest@4.0.1` already peers on `effect@^4.0.1`).
+`@effect/vitest` in lockstep, since a mismatch produces confusing type errors.
+Modules in packages other than `effect` are currently `@stability unstable`.
 Tooling (`@effect/tsgo`, `@effect/language-service`) versions independently.
 
 ## Banned — v3 packages

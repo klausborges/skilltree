@@ -1,4 +1,4 @@
-# Services and layers (effect@4.0.0)
+# Services and layers (effect@4.1.1)
 
 Whether something earns a service at all is [architecture.md](architecture.md)'s
 call — the dependency-category table there sets the default. This file owns the
@@ -91,15 +91,21 @@ static readonly layer = Layer.unwrap(
 
 ## Naming
 
+Statics on the service class are real adapters, used outside tests:
+
 | Name | Meaning |
 |---|---|
 | `layer` | the production implementation, dependencies closed |
 | `layerNoDeps` | same implementation with dependencies left in `RIn` |
-| `layerFake` | deterministic fake for tests |
-| `layerTest` | test wiring, usually a composed stack |
 | `layerInMemoryStore` | in-memory persistence that honours the real contract |
 | `layerInProcess` | runs in-process instead of out-of-process |
 | `layerFromEnv` | configured from the environment |
+
+A fake used only by tests is a free `layerFake<Service>` in `test/`
+(`test/fakes.ts`: `layerFakeConfig`, `layerFakeGitHub`), not a static on the
+production class. A fake of an external system that the app runs against
+outside tests (a forge client fake that dev runs use until the live adapter
+lands) is an adapter, and stays beside its port.
 
 **Banned:** `Live` suffixes (`DatabaseLive`) and the generic `layerMemory`.
 
@@ -149,6 +155,9 @@ commands, hooks, and UI free of layers entirely; the root file itself is
 
 The `layerNoDeps` / `layer` pair is what makes this work: the root composes the
 `NoDeps` variants and provides shared dependencies once for all of them.
+Export that composition once, with its adapters left in `RIn`; the process root
+provides the real adapters and tests provide fakes. A test stack assembled
+separately drifts from production.
 
 ## Long-lived work
 

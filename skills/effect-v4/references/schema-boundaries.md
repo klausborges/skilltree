@@ -1,4 +1,4 @@
-# Schema and boundaries (effect@4.0.0)
+# Schema and boundaries (effect@4.1.1)
 
 **Parse at the boundary.** Untrusted input — HTTP, DB rows, env, filesystem, CLI
 args, IPC, external APIs, model output — gets decoded into typed domain values at
@@ -32,17 +32,19 @@ export const Point = Schema.Struct({ x: Schema.Finite, y: Schema.Finite })
 export interface Point extends Schema.Schema.Type<typeof Point> {}
 ```
 
+Two Schema classes with the same fields are assignable to each other. The
+optional second type argument adds a type-only brand, which `@effect/tsgo`'s
+`schemaClassMissingBrand` asks for, on `Class`, `TaggedClass`, `Error`,
+`TaggedError`, and `Opaque`:
+`Schema.Class<User, { readonly brand: unique symbol }>("User")({...})`.
+
 `Schema.Opaque` is **not** `Schema.Class` — it has no prototype, no `instanceof`,
 no methods, no `new`. It is a plain struct at runtime with a distinct type.
 
 **Scope note:** `Data.TaggedEnum` is allowed for closed unions of trusted,
 internal-only state — state machines, reducer states — where nothing crosses a
-boundary. Its constructors make plain objects; `$is(tag)` type-guards on `_tag`
-alone, and `$match` dispatches on `_tag` assuming an already-typed value —
-neither validates structure. So the moment a value can arrive from outside, it
-is Schema's job again
-(the `Data` docs say the same: untrusted input validates through Schema first).
-This scopes the "all modelling is Schema" rule; it does not reverse it.
+boundary. `$is` and `$match` check `_tag` alone and validate no structure, so a
+value that can arrive from outside is Schema's job again.
 
 ## Refinements
 
@@ -58,8 +60,7 @@ Available: `isMinLength` `isMaxLength` `isBetweenLength` `isPattern`
 `isStartingWith` `isEndingWith` `isIncluding` `isTrimmed` `isNonEmpty` `isUUID`
 `isULID` `isBase64` `isBetween({ minimum, maximum })`
 `isGreaterThan(OrEqualTo)` `isLessThan(OrEqualTo)` `isInt` `isMultipleOf`
-`isUnique`. The pre-4.0.0 spellings `isLengthBetween`, `isStartsWith`,
-`isEndsWith`, and `isIncludes` are gone.
+`isUnique`.
 
 `.check` does not change the schema type — `.fields` and `.make` still work.
 Filters must be **synchronous**; effectful validation goes through
@@ -96,8 +97,8 @@ export type UserId = typeof UserId.Type
 | `Schema.NullOr` / `UndefinedOr` / `NullishOr` | only when nullish is in the encoded contract |
 
 Do not make a domain value optional merely for construction convenience. Keep
-defaulted values required and apply the default during decoding or in the
-constructor.
+defaulted values required and apply the default during decoding
+(`Schema.withDecodingDefaultKey`) or in the constructor.
 
 Locally, a plain `=== undefined` narrowing is fine and reads the way the Effect
 source does. Once absence appears in a *public* signature, model it as `Option`.

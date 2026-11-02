@@ -1,4 +1,4 @@
-# Schedule and Cache (effect@4.0.0)
+# Schedule and Cache (effect@4.1.1)
 
 Never hand-roll retry/poll loops (`while` + sleep + counter) or TTL caches
 (`Map` + timestamps). `Schedule` is a reusable policy value; `Cache` is a keyed,
@@ -40,6 +40,9 @@ Effect.retry(task, { while: (e) => e.status >= 500, schedule: backoff })
   building a standalone policy.
 - Exhausted retries propagate the last failure. To fall back instead:
   `Effect.retryOrElse(task, policy, (error, out) => fallback)`.
+- For HTTP, `HttpClient.retryTransient` already classifies transient failures
+  (`HttpClient.isTransientError`, `isTransientResponse`) and honours
+  `Retry-After`; `HttpClient.timeout` bounds the wait for a response.
 
 ## Repeating successes
 

@@ -201,7 +201,7 @@ production                          tests
 -----------------------------       -----------------------------
 HTTP handlers                       HTTP handlers
   -> Catalog                          -> Catalog
-    -> Catalog.layerHttpClient          -> Catalog.layerTest
+    -> Catalog.layerHttpClient          -> test/ wiring
       -- network boundary --              -> Catalog.layer
       -> Catalog.layer                      -> CatalogCoordinator
         -> CatalogCoordinator                 -> CatalogStore.layerInMemoryStore

@@ -1,4 +1,4 @@
-# Testing (effect@4.0.0)
+# Testing (effect@4.1.1)
 
 Test through public service seams with real layers and fakes. Do not reach into
 module internals.
@@ -10,13 +10,14 @@ import { TestClock } from "effect/testing"
 ```
 
 Keep `effect` and `@effect/vitest` on the **same version** — a mismatch produces
-confusing type errors. `@effect/vitest` 4.0.x peers on Vitest 5.
+confusing type errors. `@effect/vitest` 4.1.x peers on Vitest 5.
 
 ## Test forms
 
 | Form | Use |
 |---|---|
 | `it.effect` | Effect-returning tests — the default |
+| `it.effect.each(cases)` | one Effect test per case, instead of a loop inside one test |
 | `it.live` | only when real wall-clock time is under test |
 | `it` | pure synchronous functions |
 | `it.prop` / `it.effect.prop` | property tests over Schemas or `Arbitrary` values |
@@ -41,7 +42,7 @@ it.effect("round-trips a value", () =>
     const s = yield* Store
     yield* s.put("a", "1")
     assert.strictEqual(yield* s.get("a"), "1")
-  }).pipe(Effect.provide(Store.layerFake)))
+  }).pipe(Effect.provide(layerFakeStore)))
 ```
 
 `layer(...)` blocks share **one instance across every test in the block**,
@@ -51,10 +52,15 @@ assume state leaks between cases.
 ## Fakes, not mocks
 
 A fake is a real implementation of the contract with in-memory state. Hold state
-in a `Ref` inside the layer, never in module-level mutable variables.
+in a `Ref` inside the layer, never in module-level mutable variables. A fake
+used only by tests lives in `test/` as a free `layerFake<Service>`, not as a
+static on the production class; see the naming rules in
+[services-layers.md](services-layers.md). Production code carries nothing that
+exists only for tests: no test-only exports, parameters, members, or layers.
 
 ```ts
-static readonly layerFake = Layer.effect(
+// test/fakes.ts
+export const layerFakeStore = Layer.effect(
   Store,
   Effect.gen(function* () {
     const ref = yield* Ref.make(new Map<string, string>())
@@ -82,6 +88,9 @@ static readonly layerFake = Layer.effect(
 - Never use `vi.mock` / `jest.mock` for module mocking.
 - A partial object whose unused methods die is a focused test fixture, not a
   reusable in-memory adapter. Keep it local to the test.
+- `effect/testing/TestCrypto` is gone in 4.1. For deterministic randomness,
+  provide `SecureRandom.make(randomBytes)` with a seeded byte source via
+  `Layer.succeed`.
 
 ## Asserting failures
 
@@ -136,11 +145,8 @@ Never use `Effect.sleep(n)` as a fiber-readiness wait. Synchronise explicitly:
 
 ## Config in tests
 
-```ts
-Effect.provideService(program, ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ PORT: "8080" }))
-```
-
-Use `ConfigProvider.fromUnknown` when the decoding path is what you are testing;
+Provide `ConfigProvider.fromUnknown({...})` (see
+[runtime-config.md](runtime-config.md)) when the decoding path is under test;
 otherwise provide a config service layer with literal values directly.
 
 ## Property tests
