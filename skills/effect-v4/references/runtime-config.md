@@ -94,7 +94,8 @@ export const cli = Command.runWith(root, { version: "1.0.0" })
   **dispatch-test seam**; `Command.run` reads `Stdio` directly.
 - `Command.withSharedFlags` parses both before *and* after the subcommand.
 - Cross-flag rules (mutually exclusive flags) go in `Command.validate`, which
-  fails before the handler runs and shows the command help.
+  fails before the handler runs and shows the command help. Its callback fails
+  with `CliError.ValidationError.make({ message })`, not a domain error.
 - A handler error with a `[CliError.userMessage]` getter is printed through
   `CliOutput.Formatter` and rethrown with its tag, and `runMain` does not log
   it again. Pass `renderErrors: false` when the app renders errors itself.
@@ -162,8 +163,9 @@ traversal check.
 
 Never use `Date.now()` or `new Date()` — use `Clock` and the `DateTime` module,
 with `TestClock` in tests. Never `Math.random()` — use `Random`. Never
-`crypto.randomUUID()` — use `SecureRandom` (`uuidV4`, `uuidV7`, `ulid`), and
-`Digest` for hashes. These have language-service diagnostics precisely because
+`crypto.randomUUID()` — use the `SecureRandom.SecureRandom` service
+(`random.uuidV4()`, `random.uuidV7()`, `random.ulid`), and `Digest.Digest` for
+hashes. These have language-service diagnostics precisely because
 they silently destroy testability.
 
 Subprocesses go through `ChildProcess.make` and `ChildProcessSpawner` from

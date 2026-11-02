@@ -98,7 +98,9 @@ export type UserId = typeof UserId.Type
 
 Do not make a domain value optional merely for construction convenience. Keep
 defaulted values required and apply the default during decoding
-(`Schema.withDecodingDefaultKey`) or in the constructor.
+(`Schema.withDecodingDefaultKey(Effect.succeed(encoded))`, or
+`withDecodingDefaultTypeKey` for a Type-side default) or in the constructor
+(`Schema.withConstructorDefault(Effect.succeed(value))`).
 
 Locally, a plain `=== undefined` narrowing is fine and reads the way the Effect
 source does. Once absence appears in a *public* signature, model it as `Option`.

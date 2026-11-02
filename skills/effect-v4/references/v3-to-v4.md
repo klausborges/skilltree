@@ -155,7 +155,7 @@ number or `"unbounded"`.
 | Area | v3 | v4 |
 |---|---|---|
 | Layer memoization | per-`Effect.provide` memo scope; overlapping layers built twice | shared `MemoMap` across `provide` calls; built once |
-| Memo opt-out | `Layer.fresh` | `Layer.fresh` **or** `Effect.provide(l, { local: true })` |
+| Memo opt-out | `Layer.fresh` | `Layer.fresh` **or** `Effect.provide(l, { local: true })`; since 4.0.6 a shared composed layer shares its inner `Layer.fresh` deps, so wrap the composed layer |
 | Structural equality | reference equality unless in `structuralRegion` | structural by default; `Equal.equals(NaN, NaN)` is now `true` |
 | Cause composition | tree preserved sequential vs parallel | flat array; distinction gone |
 | Process keep-alive | needed `runMain`'s interval | reference-counted keep-alive in the core runtime |
@@ -165,7 +165,7 @@ number or `"unbounded"`.
 Auto-memoization is a safety net, **not** a substitute for composing layers
 before providing.
 
-## Names that no longer exist
+## Names that no longer exist or changed
 
 The beta and rc series renamed APIs right up to 4.0.0, and 4.1.0 removed more.
 Code, docs, and examples written against an earlier release use these; all
@@ -184,10 +184,15 @@ fail to compile on 4.1.1.
 | `SchemaGetter.transformOrFail` | `SchemaGetter.transformEffect` |
 | `Schedule.andThen` | `Schedule.concat` |
 | `effect/Encoding`, `effect/SchemaError` | `effect/encoding/*`, `Schema.SchemaError` |
-| 4.0 `effect/Crypto` (`Crypto.Crypto`, `Crypto.randomUUIDv4`) | `effect/crypto`: `SecureRandom`, `Digest`, … |
+| 4.0 `effect/Crypto` (`Crypto.Crypto` and its `randomUUIDv4`) | `effect/crypto`: `SecureRandom`, `Digest`, … |
 | 4.0 `effect/testing/TestCrypto` | `SecureRandom.make(randomBytes)` or `Layer.mock` |
 | 4.0 `ChildProcess.TemplateExpression` | `CommandLine.TemplateExpression` |
-| 4.0 `Migrator.fromFileSystem` | `effect/sql/MigratorFileSystem` |
+| 4.0 `Migrator.fromFileSystem` | `effect/sql/MigratorFileSystem` (subpath only, not in the `effect/sql` barrel); driver `*Migrator.fromFileSystem` remain |
+| custom `Terminal.make` / `FileSystem.make` input | must add `size` / `readDirectoryEntries` |
+| `sql.insert` / `sql.updateValues` on any array | non-empty arrays only (`Array.isReadonlyArrayNonEmpty`) |
+| `Toml.parse` throwing | returns `Result` |
+| `HttpMiddleware.xForwardedHeaders` (a value) | `HttpMiddleware.xForwardedHeaders({ trustedProxies })` (4.0.6) |
+| `NodeSocket.NodeWS`, `layerWebSocketConstructorWS` | `NodeWS.WebSocket`, `NodeWS.layerWebSocketConstructor` |
 
 Changes since 4.0.0 that still compile: `Persistence.layerKvs` entries written
 by 4.0 are not read back by 4.1 (new `<storeId>:<key>` layout); SQL migrations

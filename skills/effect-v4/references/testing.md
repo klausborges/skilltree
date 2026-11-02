@@ -46,8 +46,8 @@ it.effect("round-trips a value", () =>
 ```
 
 `layer(...)` blocks share **one instance across every test in the block**,
-including mutable state. Reserve them for genuinely expensive resources and
-assume state leaks between cases.
+including mutable state, unless you pass `{ buildPerTest: true }` (4.0.7+).
+Reserve shared blocks for genuinely expensive resources.
 
 ## Fakes, not mocks
 
@@ -87,9 +87,9 @@ export const layerFakeStore = Layer.effect(
 - Never use `vi.mock` / `jest.mock` for module mocking.
 - A partial object whose unused methods die is a focused test fixture, not a
   reusable in-memory adapter. Keep it local to the test.
-- `effect/testing/TestCrypto` is gone in 4.1. For deterministic randomness,
-  provide `SecureRandom.make(randomBytes)` with a seeded byte source via
-  `Layer.succeed`.
+- `effect/testing/TestCrypto` is gone in 4.1. For deterministic SecureRandom,
+  provide `Layer.succeed(SecureRandom.SecureRandom, SecureRandom.make(randomBytes))`
+  with a seeded byte source; non-crypto randomness is still `Random`.
 
 ## Asserting failures
 
