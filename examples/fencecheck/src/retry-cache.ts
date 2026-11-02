@@ -12,13 +12,7 @@ export const backoff = Schedule.exponential("100 millis").pipe(
 
 export class Upstream extends Context.Service<Upstream, {
   readonly fetchProfile: (userId: string) => Effect.Effect<string, UpstreamError>
-}>()("fencecheck/retry-cache/Upstream") {
-  static readonly layerFake: Layer.Layer<Upstream> = Layer.sync(Upstream, () =>
-    Upstream.of({
-      fetchProfile: Effect.fn("Upstream.fetchProfile")((userId: string) =>
-        Effect.succeed(`profile:${userId}`)),
-    }))
-}
+}>()("fencecheck/retry-cache/Upstream") {}
 
 export class Profiles extends Context.Service<Profiles, {
   readonly get: (userId: string) => Effect.Effect<string, UpstreamError>
