@@ -1,4 +1,4 @@
-# Services and layers (effect@4.0.0)
+# Services and layers (effect@4.1.1)
 
 Whether something earns a service at all is [architecture.md](architecture.md)'s
 call — the dependency-category table there sets the default. This file owns the
@@ -91,15 +91,20 @@ static readonly layer = Layer.unwrap(
 
 ## Naming
 
+Statics on the service class are layers the app runs outside tests:
+
 | Name | Meaning |
 |---|---|
 | `layer` | the production implementation, dependencies closed |
 | `layerNoDeps` | same implementation with dependencies left in `RIn` |
-| `layerFake` | deterministic fake for tests |
-| `layerTest` | test wiring, usually a composed stack |
 | `layerInMemoryStore` | in-memory persistence that honours the real contract |
 | `layerInProcess` | runs in-process instead of out-of-process |
 | `layerFromEnv` | configured from the environment |
+| `layerFake` | a fake of an external system the app runs against outside tests (a forge client fake for dev runs until the live adapter lands) |
+
+A fake used only by tests is a free `layerFake<Service>` value in `test/`
+(`test/fakes.ts`: `layerFakeConfig`, `layerFakeGitHub`), not a static on the
+production class. The split is by usage, not spelling.
 
 **Banned:** `Live` suffixes (`DatabaseLive`) and the generic `layerMemory`.
 
@@ -149,6 +154,9 @@ commands, hooks, and UI free of layers entirely; the root file itself is
 
 The `layerNoDeps` / `layer` pair is what makes this work: the root composes the
 `NoDeps` variants and provides shared dependencies once for all of them.
+Export that composition once, with its adapters left in `RIn`; the process root
+provides the real adapters and tests provide fakes. A test stack assembled
+separately drifts from production.
 
 ## Long-lived work
 
@@ -205,12 +213,13 @@ Annotate the generator's return with `Effect.fn.Return<A, E, R>` — **not**
 `Effect.Effect<...>` — when you need to pin the error channel:
 
 ```ts
-export const parsePort = Effect.fn("parsePort")(
-  function* (raw: string): Effect.fn.Return<number, ParseInputError> {
-    if (!/^\d+$/.test(raw)) {
-      return yield* ParseInputError.make({ input: raw })
+export const findUser = Effect.fn("findUser")(
+  function* (id: UserId): Effect.fn.Return<User, UserNotFound, UserRepository> {
+    const user = yield* (yield* UserRepository).findById(id)
+    if (Option.isNone(user)) {
+      return yield* UserNotFound.make({ id })
     }
-    return Number(raw)
+    return user.value
   },
 )
 ```

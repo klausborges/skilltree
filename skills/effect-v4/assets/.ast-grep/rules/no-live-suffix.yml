@@ -2,7 +2,7 @@
 id: no-live-suffix
 language: TypeScript
 severity: error
-message: "`Live` suffixes are banned; name layers by what they are (layer, layerNoDeps, layerFake, layerTest, ...)."
+message: "`Live` suffixes are banned; name layers by what they are (layer, layerNoDeps, layerInMemoryStore, ...)."
 note: |
   `DatabaseLive` / `static readonly layerLive` say nothing about the
   implementation. Use the layer naming table in effect-v4

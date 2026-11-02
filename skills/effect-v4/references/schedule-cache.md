@@ -1,4 +1,4 @@
-# Schedule and Cache (effect@4.0.0)
+# Schedule and Cache (effect@4.1.1)
 
 Never hand-roll retry/poll loops (`while` + sleep + counter) or TTL caches
 (`Map` + timestamps). `Schedule` is a reusable policy value; `Cache` is a keyed,
@@ -30,8 +30,8 @@ Effect.retry(task, { while: (e) => e.status >= 500, schedule: backoff })
   not a substitute for typed errors ([errors.md](errors.md)); the `while`
   predicate on the error's tag or fields targets the transient subset.
 - Bounds and composition: `Schedule.upTo({ times })` caps attempts (it also
-  takes `duration`, an elapsed-time bound checked before each sleep — it
-  bounds when the next retry may start, not total wall time). Compose
+  takes `duration`, an elapsed-time bound checked before each sleep, so an
+  approved delay can carry the next attempt past the limit). Compose
   policies with `Schedule.max([...])` (delay pattern + hard cap, e.g. backoff
   with `Schedule.recurs(5)`) and `Schedule.min([...])` (e.g. cap the delay:
   min of an exponential and `Schedule.spaced("2 seconds")`). The pre-4.0.0
@@ -40,6 +40,9 @@ Effect.retry(task, { while: (e) => e.status >= 500, schedule: backoff })
   building a standalone policy.
 - Exhausted retries propagate the last failure. To fall back instead:
   `Effect.retryOrElse(task, policy, (error, out) => fallback)`.
+- For HTTP, `HttpClient.retryTransient` already classifies transient failures
+  (`HttpClient.isTransientError`, `isTransientResponse`) and honours
+  `Retry-After`; `HttpClient.timeout` bounds the wait for a response.
 
 ## Repeating successes
 

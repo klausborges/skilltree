@@ -1,4 +1,4 @@
-# Errors (effect@4.0.0)
+# Errors (effect@4.1.1)
 
 Every failure a caller could reasonably handle belongs in the error channel as a
 tagged error. Reserve defects for genuine bugs and impossible states.
@@ -15,7 +15,6 @@ export class ParseInputError extends Schema.TaggedError<ParseInputError>()("Pars
 
 - `Schema.TaggedError` is the default — use it for anything that crosses a
   boundary (HTTP, persistence, IPC, logs, another module's error channel).
-  Before 4.0.0 it was `Schema.TaggedErrorClass`, which no longer exists.
 - `Data.TaggedError` — same name, different module, no schema — remains
   legitimate for internal errors that never need decode/encode. If in doubt,
   use the Schema form.

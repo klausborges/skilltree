@@ -1,6 +1,6 @@
 ---
 name: effect-v4
-description: Effect v4 (effect@4.0.x stable) patterns and architecture judgment for TypeScript. Use when writing or reviewing Effect services, layers, schemas, typed errors, boundaries, config, CLIs, runtimes, or tests; when shaping or reviewing the structure of an Effect project, proposing a service or boundary, or arguing a wrapper is unnecessary — or when a project depends on `effect@4`. Effect v4 differs sharply from v3 and from plain TypeScript; verify APIs against the project's pinned source instead of recalling them.
+description: Effect v4 (effect@4.1.x) patterns and architecture judgment for TypeScript. Use when writing or reviewing Effect services, layers, schemas, typed errors, boundaries, config, CLIs, runtimes, or tests; when shaping or reviewing the structure of an Effect project, proposing a service or boundary, or arguing a wrapper is unnecessary — or when a project depends on `effect@4`. Effect v4 differs sharply from v3 and from plain TypeScript; verify APIs against the project's pinned source instead of recalling them.
 compatibility: The enforcement preset script requires nu (nushell); its gates use the target project's effect-tsgo and oxlint installs plus ast-grep from the target or PATH.
 ---
 
@@ -8,15 +8,16 @@ compatibility: The enforcement preset script requires nu (nushell); its gates us
 
 Effect v4 is barely present in model training data, and most Effect material —
 including `effect.website`'s unversioned `/docs/` pages — is v3: recalled APIs
-look right and are wrong. 4.0.0 is the first stable release, but the beta and
-rc series renamed APIs right up to it (`Schema.TaggedErrorClass` →
-`Schema.TaggedError`, `Config.int` → `Config.Int`, `effect/unstable/cli` →
-`effect/cli`), so a pre-release pattern is evidence to verify, not a fact.
-APIs tagged `@stability unstable` — nearly every module under `effect/<area>`,
-plus `Arbitrary` — may still break in a minor release. Even the first-party
-docs lag the shipped code (`migration/yieldable.md` documents an `.asEffect()`
-on `Option` and `Result` that 4.0.0 does not have). When any of these disagree
-with the source, the source wins.
+look right and are wrong. The beta and rc series renamed APIs right up to
+4.0.0 (`Schema.TaggedErrorClass` → `Schema.TaggedError`, `effect/unstable/cli`
+→ `effect/cli`), and 4.1.0 broke more (`effect/Crypto` is gone), so a pattern
+written against an earlier release is evidence to verify, not a fact. APIs
+tagged `@stability unstable` — nearly every module under `effect/<area>`, plus
+a set of core modules (`FileSystem`, `Path`, `Terminal`, `Stdio`, `SemVer`,
+`Bytes`, `Arbitrary`, …) — may break in a minor release; `@stability
+experimental` ones (`Glob`, `TextDiff`) in a patch release. Check each module's
+`@stability` tag. When docs, examples, or memory disagree with the source, the
+source wins.
 
 Established project conventions take precedence unless the task is explicitly
 changing them.
@@ -69,15 +70,19 @@ If a task spans several, read all the matching files before editing.
 | Model a domain value | `Schema.Class`; `Schema.Struct` for structural shapes |
 | Read config | `Config.*`, never `process.env` |
 | Current time / randomness | `Clock`, `DateTime`, `Random` — never `Date.now`, `Math.random` |
+| UUIDs, tokens, hashes | `SecureRandom`, `Digest` from `effect/crypto` — never `crypto.randomUUID`, `node:crypto` |
 | Files, paths, terminal | `FileSystem`, `Path` from core `effect` — not `node:fs` |
 | Run the program | `NodeRuntime.runMain` / `BunRuntime.runMain` |
 | Write a test | `it.effect` with `assert` from `@effect/vitest` |
-| `provide` layers | inside a layer closing its own dependencies, and once at the process root — nowhere else |
+| `provide` layers | in production: inside layers closing their own dependencies, and at the process root; tests and managed hosts own separate roots |
 
 ## Layer naming
 
-`layer` (production) · `layerNoDeps` (dependencies left in `RIn`) · `layerFake` ·
-`layerTest` · `layerInProcess` · `layerInMemoryStore` · `layerFromEnv`
+On the class, layers the app runs outside tests: `layer` (production) ·
+`layerNoDeps` (dependencies left in `RIn`) · `layerInProcess` ·
+`layerInMemoryStore` · `layerFromEnv` · `layerFake` (an external system's fake
+for dev runs). A test-only fake is a free `layerFake<Service>` in `test/`
+(`layerFakeConfig`, `layerFakeGitHub`): the split is by usage, not spelling.
 
 Never `Live` suffixes. Never the generic `layerMemory`.
 
@@ -135,7 +140,9 @@ file needs several, the boundary is drawn in the wrong place.
   silence Effect typing. Branch, parse, or refine instead.
 - Do not `JSON.parse(x) as T` — decode through a schema.
 - Do not hand-roll `isString`-style guards; use `Predicate`.
-- Do not hand-roll retry/poll loops or TTL caches; use `Schedule` and `Cache`.
+- Do not hand-roll what Effect ships: retry/poll loops and TTL caches
+  (`Schedule`, `Cache`), subprocesses (`effect/process`; signal branching
+  aside, see runtime-config), port parsing (`Config.Port`).
 - Do not `Effect.orDie` on config, state, reconciliation, or recovery paths.
 - Do not import v3 packages: `@effect/platform`, `@effect/schema`, `@effect/cli`,
   `@effect/rpc`, `@effect/cluster`, `@effect/experimental`.

@@ -1,8 +1,8 @@
-# v3 → v4 API delta (effect@4.0.0)
+# v3 → v4 API delta (effect@4.1.1)
 
-Extracted from `migration/*.md` at tag `effect@4.0.0`, verified against the
-published `effect@4.0.0` types. Module/package moves live in
-[module-paths.md](module-paths.md).
+Extracted from `migration/*.md` at tag `effect@4.0.0` and the 4.0.1–4.1.1
+changelogs, verified against the `effect@4.1.1` source. Module/package moves
+live in [module-paths.md](module-paths.md).
 
 ## Traps — look right, are wrong
 
@@ -58,12 +58,11 @@ These typecheck or read plausibly. Highest risk first.
 | `Effect.Service<Self>()(id, {effect, dependencies})` | `Context.Service<Self>()(id, { make })` |
 | auto `.Default` layer | write `static readonly layer = Layer.effect(this, this.make)` |
 | `dependencies: [...]` | `Layer.provide(...)` — the option no longer exists |
-| `.Default` / `.Live` naming | `.layer`, `.layerTest`, `.layerConfig` |
+| `.Default` / `.Live` naming | `.layer`, `.layerNoDeps`; test fakes are `layerFake<Service>` in `test/` |
 | static accessor proxy `Svc.method(x)` | `Svc.use((s) => s.method(x))` — prefer `yield*` |
 | `Context.Reference<Self>()(id, opts)` | `Context.Reference<T>(id, opts)` |
 
-`ServiceMap.Service` was a real intermediate-beta name (≈beta.40) renamed to
-`Context.Service` by beta.47. There is no `ServiceMap` module in 4.0.0.
+`ServiceMap.Service` was an intermediate-beta name; there is no `ServiceMap` module.
 
 ## Errors
 
@@ -78,7 +77,7 @@ These typecheck or read plausibly. Highest risk first.
 | `Effect.tapErrorCause` | `Effect.tapCause` |
 | `Effect.either` | `Effect.result` |
 | `Effect.optionFromOptional` | `Effect.catchNoSuchElement` |
-| `Effect.ignoreLogged` | `Effect.ignore` |
+| `Effect.ignoreLogged` | `Effect.ignore({ log: true })` |
 | `Data.TaggedError` (for schema-crossing errors) | `Schema.TaggedError` |
 
 `catchTag`, `catchTags`, `catchIf` are unchanged. New in v4:
@@ -136,14 +135,8 @@ Yieldable in `Effect.gen`: `Effect`, `Config`, `Context.Service`.
 
 `Option` and `Result` each carry their own iterator type, so `yield*`-ing them
 fails to compile (and fails at runtime if you force past it with a cast). Lift
-them with `Effect.fromOption` / `Effect.fromResult`.
-
-> `migration/yieldable.md` describes `Option` and `Result` as yieldable and
-> gives them and `Config` an `.asEffect()` method. In the 4.0.0 types `yield*`
-> over `Option`/`Result` fails to compile and none of the three has
-> `asEffect`; the only one is the abstract method on `Effectable.Class` for
-> custom Effect types. The first-party migration docs lag the shipped code —
-> when they disagree, the source wins.
+them with `Effect.fromOption` / `Effect.fromResult`; in pure code, their
+iterators run in `Option.gen` / `Result.gen`.
 
 ## FiberRef → References
 
@@ -161,8 +154,8 @@ number or `"unbounded"`.
 
 | Area | v3 | v4 |
 |---|---|---|
-| Layer memoization | per-`Effect.provide` memo scope; overlapping layers built twice | shared `MemoMap` across `provide` calls; built once |
-| Memo opt-out | `Layer.fresh` | `Layer.fresh` **or** `Effect.provide(l, { local: true })` |
+| Layer memoization | per-`Effect.provide` memo scope; overlapping layers built twice | nested `provide` calls reuse the enclosing layers; sibling `provide` calls build independently |
+| Memo opt-out | `Layer.fresh` | `Layer.fresh` **or** `Effect.provide(l, { local: true })`; since 4.0.6 a shared composed layer shares its inner `Layer.fresh` deps, so wrap the composed layer |
 | Structural equality | reference equality unless in `structuralRegion` | structural by default; `Equal.equals(NaN, NaN)` is now `true` |
 | Cause composition | tree preserved sequential vs parallel | flat array; distinction gone |
 | Process keep-alive | needed `runMain`'s interval | reference-counted keep-alive in the core runtime |
@@ -172,13 +165,13 @@ number or `"unbounded"`.
 Auto-memoization is a safety net, **not** a substitute for composing layers
 before providing.
 
-## Pre-release names that no longer exist
+## Names that no longer exist or changed
 
-The beta and rc series renamed APIs right up to 4.0.0. Code, docs, and
-examples written against a pre-release use these; all fail to compile on
-4.0.0.
+The beta and rc series renamed APIs right up to 4.0.0, and 4.1.0 removed more.
+Code, docs, and examples written against an earlier release use these; most
+fail to compile on 4.1.1, and the rest change behaviour.
 
-| Pre-4.0.0 | 4.0.0 |
+| Before | 4.1.1 |
 |---|---|
 | `effect/unstable/<area>` | `effect/<area>` (still `@stability unstable`) |
 | `effect/unstable/httpapi` | `effect/http-api` |
@@ -191,11 +184,18 @@ examples written against a pre-release use these; all fail to compile on
 | `SchemaGetter.transformOrFail` | `SchemaGetter.transformEffect` |
 | `Schedule.andThen` | `Schedule.concat` |
 | `effect/Encoding`, `effect/SchemaError` | `effect/encoding/*`, `Schema.SchemaError` |
+| 4.0 `effect/Crypto` (`Crypto.Crypto` and its `randomUUIDv4`) | `effect/crypto`: `SecureRandom`, `Digest`, … |
+| 4.0 `effect/testing/TestCrypto` | `SecureRandom.make(randomBytes)` or `Layer.mock` |
+| 4.0 `ChildProcess.TemplateExpression` | `CommandLine.TemplateExpression` |
+| 4.0 `Migrator.fromFileSystem` | `effect/sql/MigratorFileSystem` (subpath only, not in the `effect/sql` barrel); driver `*Migrator.fromFileSystem` remain, except SQLite React Native |
+| custom `Terminal.make` / `FileSystem.make` input | must add `size` / `readDirectoryEntries` |
+| `sql.insert` / `sql.updateValues` on any array | non-empty arrays only (`Array.isReadonlyArrayNonEmpty`) |
+| `Toml.parse` throwing | returns `Result`; a `try`/`catch` still compiles but never catches |
+| `HttpMiddleware.xForwardedHeaders` (a value) | `HttpMiddleware.xForwardedHeaders({ trustedProxies })` (4.0.6) |
+| `NodeSocket.NodeWS`, `layerWebSocketConstructorWS` | `NodeWS.WebSocket`, `NodeWS.layerWebSocketConstructor` |
 
-Earlier churn, as evidence that a pre-release pattern proves nothing:
-
-- `Schema.Defect` in tagged-error fields — worked at beta.59, **crashed at
-  .83**, works .93+. `Schema.Unknown` for `cause` is a dead workaround.
-- beta.95 — ConfigProviders treat empty strings as missing
-  (`preserveEmptyStrings` opts out).
-- beta.96 — `Schedule` combinators removed, including `Schedule.both`.
+Changes since 4.0.0 that still compile: 4.1 does not read back 4.0
+`Persistence.layerKvs` entries (new `<storeId>:<key>` layout) or Redis entries
+whose store ID contains `%` or `:`, with no automatic migration; a repeated
+single-valued CLI flag is rejected; `Ref` and `MutableRef` compare by
+reference; `Schedule.fibonacci` repeats its first delay.

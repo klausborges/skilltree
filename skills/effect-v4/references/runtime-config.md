@@ -1,4 +1,4 @@
-# Runtime, entrypoints, config (effect@4.0.0)
+# Runtime, entrypoints, config (effect@4.1.1)
 
 ## The composition root
 
@@ -11,11 +11,13 @@ const appLayer = Layer.mergeAll(NodeServices.layer, Greeter.layer, Storage.layer
 ```
 
 `NodeServices.layer` already bundles `FileSystem`, `Path`, `Stdio`, `Terminal`,
-`Crypto`, and `ChildProcessSpawner` — do not merge them individually.
+and `ChildProcessSpawner` — do not merge them individually. Since 4.1 it carries
+no crypto: add `NodeCrypto.layer` (every family) or one family such as
+`NodeCrypto.layerSecureRandom`; `BunCrypto` mirrors it.
 
-Compose layers *before* providing. Shared memoization in v4 will deduplicate an
-overlapping layer built twice, but that is a safety net, not a substitute for
-composing properly.
+Compose layers *before* providing. In v4 a nested `provide` reuses layers the
+enclosing one built, but sibling `provide` calls build their own; memoization
+is a safety net, not a substitute for composing properly.
 
 ## Entrypoints
 
@@ -35,9 +37,6 @@ NodeRuntime.runMain(program, { disableErrorReporting: true })
 `Effect.runPromise` / `runSync` / `runFork` in library code — they are entrypoint
 and boundary tools only.
 
-For a fiber's own result use `Fiber.join` / `Fiber.await`; `Effect.forkAll` and
-`forkWithErrorHandler` no longer exist.
-
 ## Integrating with non-Effect code
 
 Effect is usually a **core with a non-Effect shell**: an HTTP framework, a React
@@ -54,14 +53,12 @@ export const handler = (name: string) =>
 ```
 
 The handler is not `async`: `runPromise` already returns a `Promise`, and the
-preset sets `asyncFunction: error` — everything of ours is an Effect, vendor
-async is wrapped once at the adapter. Where an adapter file genuinely needs
-multi-step vendor `async`/`await`, put
-`// @effect-diagnostics asyncFunction:off` at the top of that file. Prefer the
-pragma over a project-local plugin `overrides` entry: `--lspconfig` **replaces**
-the project's plugin config, so an override added to your own tsconfig holds in
-the editor but is discarded by a CLI runner that injects the preset that way.
-The pragma survives both paths.
+preset sets `asyncFunction: error`. An adapter file that genuinely needs
+multi-step vendor `async`/`await` takes
+`// @effect-diagnostics asyncFunction:off` at the top. Prefer the pragma over a
+plugin `overrides` entry in your tsconfig: a CLI runner using `--lspconfig`
+**replaces** the project's plugin config and discards the override; the pragma
+survives both.
 
 Crossing the other way — foreign async inside Effect — use `Effect.tryPromise`
 for a one-shot Promise and `Effect.callback` for callback APIs. Interruption is
@@ -92,11 +89,16 @@ export const cli = Command.runWith(root, { version: "1.0.0" })
 - `effect/cli` is `@stability unstable` — `Command`, `Flag`, and `Argument`
   included — and may break in a minor release.
 - v3 `Options` → `Flag`, `Args` → `Argument`. Constructors are PascalCase:
-  `Flag.String`, `Flag.Int`, `Flag.Boolean`, `Argument.String` — the
-  pre-4.0.0 `Flag.string` / `Flag.integer` are gone.
+  `Flag.String`, `Flag.Int`, `Flag.Boolean`, `Argument.String`.
 - `Command.runWith(root, { version })` takes an explicit argv and is the
   **dispatch-test seam**; `Command.run` reads `Stdio` directly.
 - `Command.withSharedFlags` parses both before *and* after the subcommand.
+- Cross-flag rules (mutually exclusive flags) go in `Command.validate`, which
+  fails before the handler runs and shows the command help. Its callback fails
+  with `CliError.ValidationError.make({ message })`, not a domain error.
+- A handler error with a `[CliError.userMessage]` getter is printed through
+  `CliOutput.Formatter` and rethrown with its tag, and `runMain` does not log
+  it again. Pass `renderErrors: false` when the app renders errors itself.
 - Do not create one service per subcommand.
 
 ## Config
@@ -114,10 +116,6 @@ Constructors (PascalCase, like `Schema`): `String` `NonEmptyString` `Number`
 `all` `schema`.
 Combinators: `option` `withDefault` `orElse` `map` `mapEffect` `flatMap`
 `nested` `unwrap`.
-
-The lowercase constructors (`Config.int`, `Config.port`, …) and
-`Config.mapOrFail` are pre-4.0.0 names and no longer exist; neither does
-`Config.integer`.
 
 `Literal` / `Literals` take the value(s) first and the name second:
 `Config.Literals(["a", "b"], "MODE")`.
@@ -158,13 +156,26 @@ Effect.provideService(program, ConfigProvider.ConfigProvider, ConfigProvider.fro
 ## Platform services
 
 Use core `effect` modules, not Node built-ins: `FileSystem`, `Path`, `Terminal`,
-`Crypto`, `Stdio`. `@effect/platform-node` supplies the *layers* that implement
-them.
+`Stdio`, and `effect/crypto`. `@effect/platform-node` supplies the *layers* that
+implement them. The `Path` service's `resolveWithin(root, input)` returns
+`Option.none()` for a path that escapes `root`; use it instead of a hand-written
+traversal check. The check is lexical: it does not follow symlinks and is not
+a sandbox.
 
 Never use `Date.now()` or `new Date()` — use `Clock` and the `DateTime` module,
-with `TestClock` in tests. Never `Math.random()` or `crypto.randomUUID()` — use
-`Random`. These have language-service diagnostics precisely because they silently
-destroy testability.
+with `TestClock` in tests. Never `Math.random()` — use `Random`. Never
+`crypto.randomUUID()` — use the `SecureRandom.SecureRandom` service
+(`random.uuidV4()`, `random.uuidV7()`, `random.ulid`), and `Digest.Digest` for
+hashes. These have language-service diagnostics precisely because
+they silently destroy testability.
+
+Subprocesses go through `ChildProcess.make` and `ChildProcessSpawner` from
+`effect/process`. Since 4.1 the template form throws `CommandLineError` on shell
+syntax (`|`, `$HOME`, `*`); without `shell`, quote it or pass it through `${}`.
+With `{ shell: true }`, pass one complete script string, with no `${}` values
+or extra arguments. A process killed by a signal makes `exitCode` fail with a
+`PlatformError` that carries the signal only in its message text, so keep a
+hand-rolled adapter where the caller must branch on the signal.
 
 ## Observability
 
