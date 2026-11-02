@@ -78,10 +78,12 @@ If a task spans several, read all the matching files before editing.
 
 ## Layer naming
 
-On the class, real adapters only: `layer` (production) · `layerNoDeps`
-(dependencies left in `RIn`) · `layerInProcess` · `layerInMemoryStore` ·
-`layerFromEnv`. A fake used only by tests is a free `layerFake<Service>` in
-`test/` (`layerFakeConfig`, `layerFakeGitHub`), never a static on the class.
+On the class, layers the app runs outside tests: `layer` (production) ·
+`layerNoDeps` (dependencies left in `RIn`) · `layerInProcess` ·
+`layerInMemoryStore` · `layerFromEnv` · `layerFake` (a fake of an external
+system that dev runs use). A fake used only by tests is a free
+`layerFake<Service>` in `test/` (`layerFakeConfig`, `layerFakeGitHub`), not a
+static on the class: the split is by usage, not spelling.
 
 Never `Live` suffixes. Never the generic `layerMemory`.
 

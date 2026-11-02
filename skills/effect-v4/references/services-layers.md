@@ -91,7 +91,7 @@ static readonly layer = Layer.unwrap(
 
 ## Naming
 
-Statics on the service class are real adapters, used outside tests:
+Statics on the service class are layers the app runs outside tests:
 
 | Name | Meaning |
 |---|---|
@@ -100,12 +100,11 @@ Statics on the service class are real adapters, used outside tests:
 | `layerInMemoryStore` | in-memory persistence that honours the real contract |
 | `layerInProcess` | runs in-process instead of out-of-process |
 | `layerFromEnv` | configured from the environment |
+| `layerFake` | a fake of an external system the app runs against outside tests (a forge client fake for dev runs until the live adapter lands) |
 
-A fake used only by tests is a free `layerFake<Service>` in `test/`
+A fake used only by tests is a free `layerFake<Service>` value in `test/`
 (`test/fakes.ts`: `layerFakeConfig`, `layerFakeGitHub`), not a static on the
-production class. A fake of an external system that the app runs against
-outside tests (a forge client fake that dev runs use until the live adapter
-lands) is an adapter, and stays beside its port.
+production class. The split is by usage, not spelling.
 
 **Banned:** `Live` suffixes (`DatabaseLive`) and the generic `layerMemory`.
 

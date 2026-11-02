@@ -52,10 +52,9 @@ assume state leaks between cases.
 ## Fakes, not mocks
 
 A fake is a real implementation of the contract with in-memory state. Hold state
-in a `Ref` inside the layer, never in module-level mutable variables. A fake
-used only by tests lives in `test/` as a free `layerFake<Service>`, not as a
-static on the production class; see the naming rules in
-[services-layers.md](services-layers.md). Production code carries nothing that
+in a `Ref` inside the layer, never in module-level mutable variables. A
+test-only fake is a free `layerFake<Service>` in `test/`
+([services-layers.md](services-layers.md)). Production code carries nothing that
 exists only for tests: no test-only exports, parameters, members, or layers.
 
 ```ts

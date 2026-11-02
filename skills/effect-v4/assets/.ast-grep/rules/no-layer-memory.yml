@@ -2,7 +2,7 @@
 id: no-layer-memory
 language: TypeScript
 severity: error
-message: "The generic `layerMemory` name is banned; say what it stores: layerInMemoryStore."
+message: "The generic `layerMemory` name is banned; say what it stores: `layerInMemoryStore` for a real in-memory adapter, or a free `layerFake<Service>` in test/ for a test-only fake."
 note: |
   See the layer naming table in effect-v4 references/services-layers.md.
 rule:

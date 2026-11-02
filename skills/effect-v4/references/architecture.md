@@ -201,17 +201,19 @@ production                          tests
 -----------------------------       -----------------------------
 HTTP handlers                       HTTP handlers
   -> Catalog                          -> Catalog
-    -> Catalog.layerHttpClient          -> test/ wiring
-      -- network boundary --              -> Catalog.layer
-      -> Catalog.layer                      -> CatalogCoordinator
-        -> CatalogCoordinator                 -> CatalogStore.layerInMemoryStore
-          -> CatalogStore                     -> ReadIndex.layerInMemoryStore
+    -> Catalog.layerHttpClient          -> Catalog.layer
+      -- network boundary --              -> CatalogCoordinator
+      -> Catalog.layer                      -> CatalogStore.layerInMemoryStore
+        -> CatalogCoordinator               -> ReadIndex.layerInMemoryStore
+          -> CatalogStore
             -> CatalogPostgresExecutor
           -> ReadIndex
 ```
 
 - Handlers depend on `Catalog` in both. If the graphs diverge anywhere above the
   seam, the seam is in the wrong place.
+- The `layerInMemoryStore` statics are real adapters that dev and local runs
+  use too, not test fakes.
 - Name the real boundary — `layerHttpClient`, `layerDurableObject`,
   `layerWorker` — never a generic `layerRemote`.
 - Name the backend too. `CatalogPostgresExecutor` tells a reader the store is
