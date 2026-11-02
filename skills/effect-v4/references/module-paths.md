@@ -62,7 +62,8 @@ module. The pre-4.0.0 `Encoding` module is split into
 
 The pre-4.0.0 areas were `effect/unstable/<area>`; the `unstable` path segment
 and `effect/httpapi` are gone, and `crypto`, `graphql`, `jose` arrived after
-4.0.0. Since 4.0.2 every export carries an explicit `@stability` tag: most here
+4.0.0. Since 4.0.2 every export carries an explicit `@stability` tag, so check per
+export: most here
 are `unstable` (may break in a minor release),
 `encoding/{Base64,Base64Url,Hex,EncodingError}` are `stable`, and these are
 `experimental` (may break in a patch release): `graphql`, `encoding/{Xml,Zip}`,

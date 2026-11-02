@@ -168,8 +168,8 @@ before providing.
 ## Names that no longer exist or changed
 
 The beta and rc series renamed APIs right up to 4.0.0, and 4.1.0 removed more.
-Code, docs, and examples written against an earlier release use these; all
-fail to compile on 4.1.1.
+Code, docs, and examples written against an earlier release use these; most
+fail to compile on 4.1.1, and the rest change behaviour.
 
 | Before | 4.1.1 |
 |---|---|
@@ -187,10 +187,10 @@ fail to compile on 4.1.1.
 | 4.0 `effect/Crypto` (`Crypto.Crypto` and its `randomUUIDv4`) | `effect/crypto`: `SecureRandom`, `Digest`, … |
 | 4.0 `effect/testing/TestCrypto` | `SecureRandom.make(randomBytes)` or `Layer.mock` |
 | 4.0 `ChildProcess.TemplateExpression` | `CommandLine.TemplateExpression` |
-| 4.0 `Migrator.fromFileSystem` | `effect/sql/MigratorFileSystem` (subpath only, not in the `effect/sql` barrel); driver `*Migrator.fromFileSystem` remain |
+| 4.0 `Migrator.fromFileSystem` | `effect/sql/MigratorFileSystem` (subpath only, not in the `effect/sql` barrel); driver `*Migrator.fromFileSystem` remain, except SQLite React Native |
 | custom `Terminal.make` / `FileSystem.make` input | must add `size` / `readDirectoryEntries` |
 | `sql.insert` / `sql.updateValues` on any array | non-empty arrays only (`Array.isReadonlyArrayNonEmpty`) |
-| `Toml.parse` throwing | returns `Result` |
+| `Toml.parse` throwing | returns `Result`; a `try`/`catch` still compiles but never catches |
 | `HttpMiddleware.xForwardedHeaders` (a value) | `HttpMiddleware.xForwardedHeaders({ trustedProxies })` (4.0.6) |
 | `NodeSocket.NodeWS`, `layerWebSocketConstructorWS` | `NodeWS.WebSocket`, `NodeWS.layerWebSocketConstructor` |
 

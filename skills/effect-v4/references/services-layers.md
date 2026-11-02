@@ -214,8 +214,8 @@ Annotate the generator's return with `Effect.fn.Return<A, E, R>` — **not**
 
 ```ts
 export const findUser = Effect.fn("findUser")(
-  function* (id: UserId): Effect.fn.Return<User, UserNotFound, UserRepo> {
-    const user = yield* (yield* UserRepo).find(id)
+  function* (id: UserId): Effect.fn.Return<User, UserNotFound, UserRepository> {
+    const user = yield* (yield* UserRepository).findById(id)
     if (Option.isNone(user)) {
       return yield* UserNotFound.make({ id })
     }
