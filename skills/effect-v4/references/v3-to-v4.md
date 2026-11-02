@@ -77,7 +77,7 @@ These typecheck or read plausibly. Highest risk first.
 | `Effect.tapErrorCause` | `Effect.tapCause` |
 | `Effect.either` | `Effect.result` |
 | `Effect.optionFromOptional` | `Effect.catchNoSuchElement` |
-| `Effect.ignoreLogged` | `Effect.ignore` |
+| `Effect.ignoreLogged` | `Effect.ignore({ log: true })` |
 | `Data.TaggedError` (for schema-crossing errors) | `Schema.TaggedError` |
 
 `catchTag`, `catchTags`, `catchIf` are unchanged. New in v4:
@@ -154,7 +154,7 @@ number or `"unbounded"`.
 
 | Area | v3 | v4 |
 |---|---|---|
-| Layer memoization | per-`Effect.provide` memo scope; overlapping layers built twice | shared `MemoMap` across `provide` calls; built once |
+| Layer memoization | per-`Effect.provide` memo scope; overlapping layers built twice | nested `provide` calls reuse the enclosing layers; sibling `provide` calls build independently |
 | Memo opt-out | `Layer.fresh` | `Layer.fresh` **or** `Effect.provide(l, { local: true })`; since 4.0.6 a shared composed layer shares its inner `Layer.fresh` deps, so wrap the composed layer |
 | Structural equality | reference equality unless in `structuralRegion` | structural by default; `Equal.equals(NaN, NaN)` is now `true` |
 | Cause composition | tree preserved sequential vs parallel | flat array; distinction gone |
@@ -194,8 +194,8 @@ fail to compile on 4.1.1.
 | `HttpMiddleware.xForwardedHeaders` (a value) | `HttpMiddleware.xForwardedHeaders({ trustedProxies })` (4.0.6) |
 | `NodeSocket.NodeWS`, `layerWebSocketConstructorWS` | `NodeWS.WebSocket`, `NodeWS.layerWebSocketConstructor` |
 
-Changes since 4.0.0 that still compile: `Persistence.layerKvs` entries written
-by 4.0 are not read back by 4.1 (new `<storeId>:<key>` layout); SQL migrations
-fail with a typed `MigrationError` instead of a defect; a repeated
+Changes since 4.0.0 that still compile: 4.1 does not read back 4.0
+`Persistence.layerKvs` entries (new `<storeId>:<key>` layout) or Redis entries
+whose store ID contains `%` or `:`, with no automatic migration; a repeated
 single-valued CLI flag is rejected; `Ref` and `MutableRef` compare by
 reference; `Schedule.fibonacci` repeats its first delay.

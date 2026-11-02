@@ -33,9 +33,9 @@ export interface Point extends Schema.Schema.Type<typeof Point> {}
 ```
 
 Two Schema classes with the same fields are assignable to each other. The
-optional second type argument adds a type-only brand, which `@effect/tsgo`'s
-`schemaClassMissingBrand` asks for, on `Class`, `TaggedClass`, `Error`,
-`TaggedError`, and `Opaque`:
+optional second type argument adds a type-only brand, which
+`schemaClassMissingBrand` (`@effect/tsgo` 0.52+) suggests on `Class`,
+`TaggedClass`, `Error`, `TaggedError`, and `Opaque`:
 `Schema.Class<User, { readonly brand: unique symbol }>("User")({...})`.
 
 `Schema.Opaque` is **not** `Schema.Class` — it has no prototype, no `instanceof`,

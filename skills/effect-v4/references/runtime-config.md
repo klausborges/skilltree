@@ -15,9 +15,9 @@ and `ChildProcessSpawner` — do not merge them individually. Since 4.1 it carri
 no crypto: add `NodeCrypto.layer` (every family) or one family such as
 `NodeCrypto.layerSecureRandom`; `BunCrypto` mirrors it.
 
-Compose layers *before* providing. Shared memoization in v4 will deduplicate an
-overlapping layer built twice, but that is a safety net, not a substitute for
-composing properly.
+Compose layers *before* providing. In v4 a nested `provide` reuses layers the
+enclosing one built, but sibling `provide` calls build their own; memoization
+is a safety net, not a substitute for composing properly.
 
 ## Entrypoints
 
@@ -159,7 +159,8 @@ Use core `effect` modules, not Node built-ins: `FileSystem`, `Path`, `Terminal`,
 `Stdio`, and `effect/crypto`. `@effect/platform-node` supplies the *layers* that
 implement them. The `Path` service's `resolveWithin(root, input)` returns
 `Option.none()` for a path that escapes `root`; use it instead of a hand-written
-traversal check.
+traversal check. The check is lexical: it does not follow symlinks and is not
+a sandbox.
 
 Never use `Date.now()` or `new Date()` — use `Clock` and the `DateTime` module,
 with `TestClock` in tests. Never `Math.random()` — use `Random`. Never
@@ -170,10 +171,11 @@ they silently destroy testability.
 
 Subprocesses go through `ChildProcess.make` and `ChildProcessSpawner` from
 `effect/process`. Since 4.1 the template form throws `CommandLineError` on shell
-syntax (`|`, `$HOME`, `*`); quote it or pass it through `${}`. A process killed
-by a signal makes `exitCode` fail with a `PlatformError` that carries the
-signal only in its message text, so keep a hand-rolled adapter where the caller
-must branch on the signal.
+syntax (`|`, `$HOME`, `*`); without `shell`, quote it or pass it through `${}`.
+With `{ shell: true }`, pass one complete script string, with no `${}` values
+or extra arguments. A process killed by a signal makes `exitCode` fail with a
+`PlatformError` that carries the signal only in its message text, so keep a
+hand-rolled adapter where the caller must branch on the signal.
 
 ## Observability
 

@@ -74,16 +74,15 @@ If a task spans several, read all the matching files before editing.
 | Files, paths, terminal | `FileSystem`, `Path` from core `effect` — not `node:fs` |
 | Run the program | `NodeRuntime.runMain` / `BunRuntime.runMain` |
 | Write a test | `it.effect` with `assert` from `@effect/vitest` |
-| `provide` layers | inside a layer closing its own dependencies, and once at the process root — nowhere else |
+| `provide` layers | in production: inside layers closing their own dependencies, and at the process root; tests and managed hosts own separate roots |
 
 ## Layer naming
 
 On the class, layers the app runs outside tests: `layer` (production) ·
 `layerNoDeps` (dependencies left in `RIn`) · `layerInProcess` ·
-`layerInMemoryStore` · `layerFromEnv` · `layerFake` (a fake of an external
-system that dev runs use). A fake used only by tests is a free
-`layerFake<Service>` in `test/` (`layerFakeConfig`, `layerFakeGitHub`), not a
-static on the class: the split is by usage, not spelling.
+`layerInMemoryStore` · `layerFromEnv` · `layerFake` (an external system's fake
+for dev runs). A test-only fake is a free `layerFake<Service>` in `test/`
+(`layerFakeConfig`, `layerFakeGitHub`): the split is by usage, not spelling.
 
 Never `Live` suffixes. Never the generic `layerMemory`.
 
@@ -142,9 +141,8 @@ file needs several, the boundary is drawn in the wrong place.
 - Do not `JSON.parse(x) as T` — decode through a schema.
 - Do not hand-roll `isString`-style guards; use `Predicate`.
 - Do not hand-roll what Effect ships: retry/poll loops and TTL caches
-  (`Schedule`, `Cache`), port parsing (`Config.Port`, `Schema.Port`), UUIDs and
-  hashes (`SecureRandom`, `Digest`), subprocesses (`effect/process`), semver
-  (`SemVer`), globbing (`FileSystem.glob`), text diffs (`TextDiff`).
+  (`Schedule`, `Cache`), subprocesses (`effect/process`; signal branching
+  aside, see runtime-config), port parsing (`Config.Port`).
 - Do not `Effect.orDie` on config, state, reconciliation, or recovery paths.
 - Do not import v3 packages: `@effect/platform`, `@effect/schema`, `@effect/cli`,
   `@effect/rpc`, `@effect/cluster`, `@effect/experimental`.

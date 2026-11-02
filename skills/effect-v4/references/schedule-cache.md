@@ -30,8 +30,8 @@ Effect.retry(task, { while: (e) => e.status >= 500, schedule: backoff })
   not a substitute for typed errors ([errors.md](errors.md)); the `while`
   predicate on the error's tag or fields targets the transient subset.
 - Bounds and composition: `Schedule.upTo({ times })` caps attempts (it also
-  takes `duration`, an elapsed-time bound checked before each sleep — it
-  bounds when the next retry may start, not total wall time). Compose
+  takes `duration`, an elapsed-time bound checked before each sleep, so an
+  approved delay can carry the next attempt past the limit). Compose
   policies with `Schedule.max([...])` (delay pattern + hard cap, e.g. backoff
   with `Schedule.recurs(5)`) and `Schedule.min([...])` (e.g. cap the delay:
   min of an exponential and `Schedule.spaced("2 seconds")`). The pre-4.0.0

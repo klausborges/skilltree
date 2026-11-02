@@ -213,12 +213,13 @@ Annotate the generator's return with `Effect.fn.Return<A, E, R>` — **not**
 `Effect.Effect<...>` — when you need to pin the error channel:
 
 ```ts
-export const parsePort = Effect.fn("parsePort")(
-  function* (raw: string): Effect.fn.Return<number, ParseInputError> {
-    if (!/^\d+$/.test(raw)) {
-      return yield* ParseInputError.make({ input: raw })
+export const findUser = Effect.fn("findUser")(
+  function* (id: UserId): Effect.fn.Return<User, UserNotFound, UserRepo> {
+    const user = yield* (yield* UserRepo).find(id)
+    if (Option.isNone(user)) {
+      return yield* UserNotFound.make({ id })
     }
-    return Number(raw)
+    return user.value
   },
 )
 ```
